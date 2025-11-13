@@ -32,7 +32,11 @@
     },
     "files": [
       "dist/**/*",
-      "package.json"
+      "package.json",
+      "node_modules/**/*"
+    ],
+    "asarUnpack": [
+      "**/*.node"
     ],
     "win": {
       "target": [
@@ -60,7 +64,7 @@
     "autoprefixer": "^10.4.22",
     "concurrently": "^9.2.1",
     "cross-env": "^10.1.0",
-    "electron": "^39.1.2",
+    "electron": "^31.7.7",
     "electron-builder": "^26.0.12",
     "eslint": "^9.39.1",
     "eslint-plugin-react-hooks": "^7.0.1",
