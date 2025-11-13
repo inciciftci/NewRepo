@@ -9,7 +9,7 @@
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "strict": true,
-    "outDir": "dist/electron",
+    "outDir": "dist",
     "rootDir": "."
   },
   "include": ["electron/**/*", "src/database/**/*", "src/types/**/*"]
