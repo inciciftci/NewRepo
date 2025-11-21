@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import CountrySidebar from "./CountrySidebar";
 import NewNoteModal from "./NewNoteModal";
+import EditNoteModal from "./EditNoteModal";
 import FullNoteModal, { FullNote } from "./FullNoteModal";
-import { X, Maximize2 } from "lucide-react";
-import type { Country, Note } from "../types";
+import { X, Maximize2, Edit2, Trash2 } from "lucide-react";
+import type { Country, Note, Link } from "../types";
 
 type CountryWithCount = Country & {
   count: number;
@@ -55,10 +56,12 @@ const Dashboard: React.FC = () => {
   const [dateFilter, setDateFilter] = useState<string>("all");
   const [search, setSearch] = useState("");
   const [isQuickModalOpen, setIsQuickModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [notes, setNotes] = useState<Note[]>([]);
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [isDetailVisible, setIsDetailVisible] = useState(true);
   const [isFullOpen, setIsFullOpen] = useState(false);
+  const [links, setLinks] = useState<Link[]>([]);
 
   useEffect(() => {
     loadCountries();
@@ -96,10 +99,51 @@ const Dashboard: React.FC = () => {
     }
   };
 
+  const loadLinks = async (noteId: number) => {
+    const data = await window.electronAPI.getLinksByNoteId(noteId);
+    setLinks(data);
+  };
+
+  useEffect(() => {
+    if (selectedNote) {
+      loadLinks(selectedNote.id);
+    }
+  }, [selectedNote]);
+
   const selectedCountry = countries.find((c) => c.id === selectedCountryId);
   const selectedCountryName = selectedCountry?.name ?? "Bir ülke seçin";
 
-  const filteredNotes = notes.filter((note) =>
+  const getFilteredNotesByDate = (allNotes: Note[]) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    switch (dateFilter) {
+      case "today": {
+        const todayStr = today.toISOString().split('T')[0];
+        return allNotes.filter(note => note.date === todayStr);
+      }
+      case "week": {
+        const weekAgo = new Date(today);
+        weekAgo.setDate(weekAgo.getDate() - 7);
+        return allNotes.filter(note => {
+          const noteDate = new Date(note.date);
+          return noteDate >= weekAgo && noteDate <= today;
+        });
+      }
+      case "month": {
+        const monthAgo = new Date(today);
+        monthAgo.setMonth(monthAgo.getMonth() - 1);
+        return allNotes.filter(note => {
+          const noteDate = new Date(note.date);
+          return noteDate >= monthAgo && noteDate <= today;
+        });
+      }
+      default:
+        return allNotes;
+    }
+  };
+
+  const filteredNotes = getFilteredNotesByDate(notes).filter((note) =>
     (note.title + note.content).toLowerCase().includes(search.toLowerCase())
   );
 
@@ -122,12 +166,53 @@ const Dashboard: React.FC = () => {
     setIsQuickModalOpen(false);
   };
 
+  const handleUpdateNote = async (noteData: { id: number; title: string; date: string; content: string }) => {
+    await window.electronAPI.updateNote(noteData.id, noteData.title, noteData.date, noteData.content);
+    await loadNotes();
+    setIsEditModalOpen(false);
+    if (selectedNote && selectedNote.id === noteData.id) {
+      const updatedNote = await window.electronAPI.getNoteById(noteData.id);
+      if (updatedNote) {
+        setSelectedNote(updatedNote);
+      }
+    }
+  };
+
+  const handleDeleteNote = async () => {
+    if (!selectedNote) return;
+    if (window.confirm(`"${selectedNote.title}" notunu silmek istediğinizden emin misiniz?`)) {
+      await window.electronAPI.deleteNote(selectedNote.id);
+      setSelectedNote(null);
+      await loadNotes();
+      await loadCountries();
+    }
+  };
+
+  const handleAddLink = async () => {
+    if (!selectedNote) return;
+    const url = window.prompt("Link URL'sini girin:");
+    if (!url) return;
+    const title = window.prompt("Link başlığı (opsiyonel):") || url;
+    await window.electronAPI.addLink(selectedNote.id, url, title);
+    await loadLinks(selectedNote.id);
+  };
+
+  const handleDeleteLink = async (linkId: number) => {
+    if (window.confirm("Bu linki silmek istediğinizden emin misiniz?")) {
+      await window.electronAPI.deleteLink(linkId);
+      if (selectedNote) {
+        await loadLinks(selectedNote.id);
+      }
+    }
+  };
+
   const fullNote: FullNote | null = selectedNote
     ? {
         title: selectedNote.title,
         date: selectedNote.date,
         country: selectedCountryName,
         content: selectedNote.content,
+        link: links.length > 0 ? links[0].url : undefined,
       }
     : null;
 
@@ -320,6 +405,81 @@ const Dashboard: React.FC = () => {
                       {selectedNote.content}
                     </p>
                   </div>
+
+                  <div className="mt-4 space-y-3">
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setIsEditModalOpen(true)}
+                        className="
+                          flex-1 inline-flex items-center justify-center gap-2
+                          px-4 py-2 rounded-xl
+                          bg-[#EEF4FF] text-[#0F1A40]
+                          border border-[#D0DFFF]
+                          hover:bg-white transition
+                          text-sm font-medium
+                        "
+                      >
+                        <Edit2 size={14} />
+                        Düzenle
+                      </button>
+                      <button
+                        onClick={handleDeleteNote}
+                        className="
+                          flex-1 inline-flex items-center justify-center gap-2
+                          px-4 py-2 rounded-xl
+                          bg-red-50 text-red-600
+                          border border-red-200
+                          hover:bg-red-100 transition
+                          text-sm font-medium
+                        "
+                      >
+                        <Trash2 size={14} />
+                        Sil
+                      </button>
+                    </div>
+
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <p className="text-[11px] font-semibold tracking-[0.18em] text-[#0F1A40]/65 uppercase">
+                          Linkler
+                        </p>
+                        <button
+                          onClick={handleAddLink}
+                          className="text-xs text-[#3A6BBF] hover:underline"
+                        >
+                          + Link Ekle
+                        </button>
+                      </div>
+                      {links.length === 0 ? (
+                        <p className="text-xs text-[#0F1A40]/50">Henüz link eklenmemiş</p>
+                      ) : (
+                        <div className="space-y-2">
+                          {links.map((link) => (
+                            <div
+                              key={link.id}
+                              className="flex items-center gap-2 p-2 rounded-lg bg-[#F8FAFF] border border-[#E0E7FF]"
+                            >
+                              <a
+                                href={link.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex-1 text-xs text-[#3A6BBF] hover:underline truncate"
+                              >
+                                {link.title}
+                              </a>
+                              <button
+                                onClick={() => handleDeleteLink(link.id)}
+                                className="text-red-500 hover:text-red-700"
+                                title="Linki sil"
+                              >
+                                <Trash2 size={12} />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </aside>
               )}
             </section>
@@ -334,6 +494,16 @@ const Dashboard: React.FC = () => {
           countryId={selectedCountryId}
           onClose={() => setIsQuickModalOpen(false)}
           onCreate={handleCreateNote}
+        />
+      )}
+
+      {selectedNote && (
+        <EditNoteModal
+          isOpen={isEditModalOpen}
+          note={selectedNote}
+          countryName={selectedCountryName}
+          onClose={() => setIsEditModalOpen(false)}
+          onUpdate={handleUpdateNote}
         />
       )}
 
