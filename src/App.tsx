@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Login from './components/Login'
-import MainLayout from './components/MainLayout'
+import Dashboard from './components/Dashboard'
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -10,7 +10,7 @@ function App() {
       {!isAuthenticated ? (
         <Login onLogin={() => setIsAuthenticated(true)} />
       ) : (
-        <MainLayout />
+        <Dashboard />
       )}
     </div>
   )
