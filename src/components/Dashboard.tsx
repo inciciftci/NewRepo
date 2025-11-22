@@ -6,9 +6,7 @@ import FullNoteModal, { FullNote } from "./FullNoteModal";
 import { X, Maximize2, Edit2, Trash2 } from "lucide-react";
 import type { Country, Note, Link } from "../types";
 
-type CountryWithCount = Country & {
-  count: number;
-};
+type CountryWithCount = Country & { count: number };
 
 type NoteCardProps = {
   note: Note;
@@ -17,8 +15,9 @@ type NoteCardProps = {
 };
 
 const NoteCard: React.FC<NoteCardProps> = ({ note, isActive, onClick }) => {
-  const preview = note.content.substring(0, 150) + (note.content.length > 150 ? "..." : "");
-  
+  const preview =
+    note.content.substring(0, 150) + (note.content.length > 150 ? "..." : "");
+
   return (
     <article
       onClick={onClick}
@@ -37,6 +36,12 @@ const NoteCard: React.FC<NoteCardProps> = ({ note, isActive, onClick }) => {
           <p className="mt-1 text-xs leading-relaxed text-[#0F1A40]/75 line-clamp-2">
             {preview}
           </p>
+
+          <div className="mt-2 flex flex-wrap gap-2">
+            <span className="inline-flex items-center rounded-full bg-[#F2F6FF] border border-[#C8D8FF] px-2.5 py-0.5 text-[11px] text-[#0F1A40]">
+              {note.country_id}
+            </span>
+          </div>
         </div>
 
         <div className="flex flex-col items-end gap-2 shrink-0">
@@ -52,7 +57,7 @@ const NoteCard: React.FC<NoteCardProps> = ({ note, isActive, onClick }) => {
 
 const Dashboard: React.FC = () => {
   const [countries, setCountries] = useState<CountryWithCount[]>([]);
-  const [selectedCountryId, setSelectedCountryId] = useState<number | undefined>(undefined);
+  const [selectedCountryId, setSelectedCountryId] = useState<number | undefined>();
   const [dateFilter, setDateFilter] = useState<string>("all");
   const [search, setSearch] = useState("");
   const [isQuickModalOpen, setIsQuickModalOpen] = useState(false);
@@ -68,9 +73,7 @@ const Dashboard: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (selectedCountryId) {
-      loadNotes();
-    }
+    if (selectedCountryId) loadNotes();
   }, [selectedCountryId]);
 
   const loadCountries = async () => {
@@ -78,13 +81,12 @@ const Dashboard: React.FC = () => {
     const countriesWithCounts = await Promise.all(
       allCountries.map(async (country) => {
         const countryNotes = await window.electronAPI.getNotesByCountry(country.id);
-        return {
-          ...country,
-          count: countryNotes.length,
-        };
+        return { ...country, count: countryNotes.length };
       })
     );
+
     setCountries(countriesWithCounts);
+
     if (countriesWithCounts.length > 0 && !selectedCountryId) {
       setSelectedCountryId(countriesWithCounts[0].id);
     }
@@ -94,9 +96,11 @@ const Dashboard: React.FC = () => {
     if (!selectedCountryId) return;
     const data = await window.electronAPI.getNotesByCountry(selectedCountryId);
     setNotes(data);
-    if (data.length > 0 && !selectedNote) {
-      setSelectedNote(data[0]);
-    }
+
+    setSelectedNote((prev) => {
+      if (prev && data.some((n) => n.id === prev.id)) return prev;
+      return data[0] ?? null;
+    });
   };
 
   const loadLinks = async (noteId: number) => {
@@ -105,9 +109,7 @@ const Dashboard: React.FC = () => {
   };
 
   useEffect(() => {
-    if (selectedNote) {
-      loadLinks(selectedNote.id);
-    }
+    if (selectedNote) loadLinks(selectedNote.id);
   }, [selectedNote]);
 
   const selectedCountry = countries.find((c) => c.id === selectedCountryId);
@@ -119,13 +121,13 @@ const Dashboard: React.FC = () => {
 
     switch (dateFilter) {
       case "today": {
-        const todayStr = today.toISOString().split('T')[0];
-        return allNotes.filter(note => note.date === todayStr);
+        const todayStr = today.toISOString().split("T")[0];
+        return allNotes.filter((note) => note.date === todayStr);
       }
       case "week": {
         const weekAgo = new Date(today);
         weekAgo.setDate(weekAgo.getDate() - 7);
-        return allNotes.filter(note => {
+        return allNotes.filter((note) => {
           const noteDate = new Date(note.date);
           return noteDate >= weekAgo && noteDate <= today;
         });
@@ -133,7 +135,7 @@ const Dashboard: React.FC = () => {
       case "month": {
         const monthAgo = new Date(today);
         monthAgo.setMonth(monthAgo.getMonth() - 1);
-        return allNotes.filter(note => {
+        return allNotes.filter((note) => {
           const noteDate = new Date(note.date);
           return noteDate >= monthAgo && noteDate <= today;
         });
@@ -156,11 +158,18 @@ const Dashboard: React.FC = () => {
       if (prev && filteredNotes.some((n) => n.id === prev.id)) return prev;
       return filteredNotes[0];
     });
-  }, [selectedCountryId, search]);
+  }, [selectedCountryId, search, dateFilter, notes]);
 
   const handleCreateNote = async (noteData: { title: string; date: string; content: string }) => {
     if (!selectedCountryId) return;
-    await window.electronAPI.createNote(selectedCountryId, noteData.title, noteData.date, noteData.content);
+
+    await window.electronAPI.createNote(
+      selectedCountryId,
+      noteData.title,
+      noteData.date,
+      noteData.content
+    );
+
     await loadNotes();
     await loadCountries();
     setIsQuickModalOpen(false);
@@ -170,22 +179,21 @@ const Dashboard: React.FC = () => {
     await window.electronAPI.updateNote(noteData.id, noteData.title, noteData.date, noteData.content);
     await loadNotes();
     setIsEditModalOpen(false);
-    if (selectedNote && selectedNote.id === noteData.id) {
-      const updatedNote = await window.electronAPI.getNoteById(noteData.id);
-      if (updatedNote) {
-        setSelectedNote(updatedNote);
-      }
+
+    if (selectedNote?.id === noteData.id) {
+      const updated = await window.electronAPI.getNoteById(noteData.id);
+      if (updated) setSelectedNote(updated);
     }
   };
 
   const handleDeleteNote = async () => {
     if (!selectedNote) return;
-    if (window.confirm(`"${selectedNote.title}" notunu silmek istediğinizden emin misiniz?`)) {
-      await window.electronAPI.deleteNote(selectedNote.id);
-      setSelectedNote(null);
-      await loadNotes();
-      await loadCountries();
-    }
+    if (!window.confirm(`"${selectedNote.title}" notunu silmek istediğinizden emin misiniz?`)) return;
+
+    await window.electronAPI.deleteNote(selectedNote.id);
+    setSelectedNote(null);
+    await loadNotes();
+    await loadCountries();
   };
 
   const handleAddLink = async () => {
@@ -193,17 +201,15 @@ const Dashboard: React.FC = () => {
     const url = window.prompt("Link URL'sini girin:");
     if (!url) return;
     const title = window.prompt("Link başlığı (opsiyonel):") || url;
+
     await window.electronAPI.addLink(selectedNote.id, url, title);
     await loadLinks(selectedNote.id);
   };
 
   const handleDeleteLink = async (linkId: number) => {
-    if (window.confirm("Bu linki silmek istediğinizden emin misiniz?")) {
-      await window.electronAPI.deleteLink(linkId);
-      if (selectedNote) {
-        await loadLinks(selectedNote.id);
-      }
-    }
+    if (!window.confirm("Bu linki silmek istediğinizden emin misiniz?")) return;
+    await window.electronAPI.deleteLink(linkId);
+    if (selectedNote) await loadLinks(selectedNote.id);
   };
 
   const fullNote: FullNote | null = selectedNote
@@ -218,8 +224,9 @@ const Dashboard: React.FC = () => {
 
   return (
     <>
-      <div className="min-h-screen bg-[#F3F7FF] flex items-center justify-center py-10 px-4">
-        <div className="w-full max-w-6xl rounded-3xl bg-white border border-[#D5E4FF] shadow-[0_24px_70px_rgba(15,26,64,0.12)] flex overflow-hidden">
+      {/* Background + centered app card */}
+      <div className="h-screen w-screen bg-[#F3F7FF] flex items-center justify-center p-8">
+        <div className="w-full h-full max-w-7xl max-h-[92vh] rounded-3xl bg-white border border-[#D5E4FF] shadow-[0_24px_70px_rgba(15,26,64,0.12)] flex overflow-hidden">
           <CountrySidebar
             countries={countries}
             selected={selectedCountryId}
@@ -258,13 +265,16 @@ const Dashboard: React.FC = () => {
               </button>
             </header>
 
+            {/* Filters row */}
             <section className="mb-4">
-              <div className="
-                flex flex-wrap items-center gap-4
-                rounded-2xl bg-[#EEF4FF]
-                border border-[#D5E4FF]
-                px-4 py-3
-              ">
+              <div
+                className="
+                  flex flex-wrap items-center gap-4
+                  rounded-2xl bg-[#EEF4FF]
+                  border border-[#D5E4FF]
+                  px-4 py-3
+                "
+              >
                 <div className="flex items-center gap-2">
                   <span className="h-2 w-2 rounded-full bg-[#3A6BBF]" />
                   <span className="text-[11px] font-semibold tracking-[0.18em] text-[#0F1A40]/70 uppercase">
@@ -324,12 +334,12 @@ const Dashboard: React.FC = () => {
               </div>
             </section>
 
-            <section className="flex-1 flex gap-6">
+            {/* Notes + Detail columns */}
+            <section className="flex-1 flex gap-6 overflow-hidden">
+              {/* Notes list */}
               <div className="flex-1 rounded-2xl border border-[#D5E4FF] bg-white px-5 py-4 h-full overflow-y-auto">
                 {filteredNotes.length === 0 ? (
-                  <p className="text-sm text-[#0F1A40]/60">
-                    Henüz not bulunmuyor.
-                  </p>
+                  <p className="text-sm text-[#0F1A40]/60">Henüz not bulunmuyor.</p>
                 ) : (
                   filteredNotes.map((note) => (
                     <NoteCard
@@ -345,6 +355,7 @@ const Dashboard: React.FC = () => {
                 )}
               </div>
 
+              {/* Detail panel */}
               {isDetailVisible && selectedNote && (
                 <aside className="flex-1 rounded-2xl border border-[#D5E4FF] bg-white px-6 py-5 flex flex-col">
                   <div className="mb-3 flex items-start justify-between gap-4">
@@ -363,7 +374,8 @@ const Dashboard: React.FC = () => {
                       </div>
                     </div>
 
-                    <div className="flex flex-col items-end gap-2 shrink-0 min-w-[96px]">
+                    {/* icons on top, date under them */}
+                    <div className="flex flex-col items-end gap-2 shrink-0 min-w-[96px] pt-0.5">
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => setIsDetailVisible(false)}
@@ -450,8 +462,11 @@ const Dashboard: React.FC = () => {
                           + Link Ekle
                         </button>
                       </div>
+
                       {links.length === 0 ? (
-                        <p className="text-xs text-[#0F1A40]/50">Henüz link eklenmemiş</p>
+                        <p className="text-xs text-[#0F1A40]/50">
+                          Henüz link eklenmemiş
+                        </p>
                       ) : (
                         <div className="space-y-2">
                           {links.map((link) => (
