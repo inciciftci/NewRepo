@@ -19,8 +19,7 @@ const CountrySidebar: React.FC<Props> = ({ countries, selected, setSelected }) =
   );
 
   return (
-    <div className="w-80 h-screen bg-[#F6FAFF] border-r border-[#DCEAFF] flex flex-col px-6 py-6">
-      
+    <aside className="w-80 h-full bg-[#F6FAFF] border-r border-[#DCEAFF] flex flex-col px-6 py-6">
       <h2 className="text-[#0F1A40] font-semibold text-2xl mb-1 tracking-wide">
         Ülke Listesi
       </h2>
@@ -81,7 +80,7 @@ const CountrySidebar: React.FC<Props> = ({ countries, selected, setSelected }) =
           </button>
         ))}
       </div>
-    </div>
+    </aside>
   );
 };
 
