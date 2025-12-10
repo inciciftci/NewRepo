@@ -160,15 +160,29 @@ const Dashboard: React.FC = () => {
     });
   }, [selectedCountryId, search, dateFilter, notes]);
 
-  const handleCreateNote = async (noteData: { title: string; date: string; content: string }) => {
+  const handleCreateNote = async (noteData: { 
+    title: string; 
+    date: string; 
+    content: string;
+    linkUrl?: string;
+    linkTitle?: string;
+  }) => {
     if (!selectedCountryId) return;
 
-    await window.electronAPI.createNote(
+    const newNoteId = await window.electronAPI.createNote(
       selectedCountryId,
       noteData.title,
       noteData.date,
       noteData.content
     );
+
+    if (noteData.linkUrl) {
+      const url = noteData.linkUrl.startsWith('http') 
+        ? noteData.linkUrl 
+        : `https://${noteData.linkUrl}`;
+      const title = noteData.linkTitle || noteData.linkUrl;
+      await window.electronAPI.addLink(newNoteId, url, title);
+    }
 
     await loadNotes();
     await loadCountries();

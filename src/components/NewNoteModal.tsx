@@ -9,6 +9,8 @@ type NewNoteModalProps = {
     title: string;
     date: string;
     content: string;
+    linkUrl?: string;
+    linkTitle?: string;
   }) => void;
 };
 
@@ -23,15 +25,25 @@ const NewNoteModal: React.FC<NewNoteModalProps> = ({
     new Date().toISOString().slice(0, 10)
   );
   const [summary, setSummary] = useState("");
+  const [linkUrl, setLinkUrl] = useState("");
+  const [linkTitle, setLinkTitle] = useState("");
 
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onCreate({ title, date, content: summary });
+    onCreate({ 
+      title, 
+      date, 
+      content: summary,
+      linkUrl: linkUrl.trim() || undefined,
+      linkTitle: linkTitle.trim() || undefined,
+    });
     setTitle("");
     setDate(new Date().toISOString().slice(0, 10));
     setSummary("");
+    setLinkUrl("");
+    setLinkTitle("");
   };
 
   return (
@@ -121,6 +133,37 @@ const NewNoteModal: React.FC<NewNoteModalProps> = ({
               value={summary}
               onChange={(e) => setSummary(e.target.value)}
             />
+          </div>
+
+          <div className="space-y-3 pt-2 border-t border-[#E0E7FF]">
+            <p className="text-[11px] font-semibold tracking-[0.18em] text-[#0F1A40]/65 uppercase">
+              Haber / Referans Linki (Opsiyonel)
+            </p>
+            
+            <div>
+              <label className="block text-xs font-medium text-[#0F1A40]/85 mb-1">
+                Link URL
+              </label>
+              <input
+                type="url"
+                className="w-full rounded-xl border border-[#C7D6FF] bg-[#F8FAFF] px-3 py-2.5 text-sm text-[#0F1A40] placeholder:text-[#0F1A40]/55 focus:outline-none focus:ring-2 focus:ring-[#AFC6FF]"
+                placeholder="https://ornek-haber-kaynagi.com/..."
+                value={linkUrl}
+                onChange={(e) => setLinkUrl(e.target.value)}
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-[#0F1A40]/85 mb-1">
+                Link Başlığı (Opsiyonel)
+              </label>
+              <input
+                className="w-full rounded-xl border border-[#C7D6FF] bg-[#F8FAFF] px-3 py-2.5 text-sm text-[#0F1A40] placeholder:text-[#0F1A40]/55 focus:outline-none focus:ring-2 focus:ring-[#AFC6FF]"
+                placeholder="Örn: BBC News - Seçim Sonuçları"
+                value={linkTitle}
+                onChange={(e) => setLinkTitle(e.target.value)}
+              />
+            </div>
           </div>
 
           <div className="mt-2 flex items-center justify-between">

@@ -95,7 +95,7 @@ const FullNoteModal: React.FC<FullNoteModalProps> = ({ isOpen, onClose, note }) 
               <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-center">
                 <input
                   readOnly
-                  value={note.link ?? "https://ornek-haber-kaynagi.com/..."}
+                  value={note.link ?? "Henüz link eklenmemiş"}
                   className="
                     flex-1 px-4 py-2.5
                     rounded-xl
@@ -110,9 +110,13 @@ const FullNoteModal: React.FC<FullNoteModalProps> = ({ isOpen, onClose, note }) 
                 <button
                   onClick={() => {
                     if (note.link) {
-                      window.open(note.link, '_blank');
+                      const url = note.link.startsWith('http') 
+                        ? note.link 
+                        : `https://${note.link}`;
+                      window.open(url, '_blank', 'noopener,noreferrer');
                     }
                   }}
+                  disabled={!note.link}
                   className="
                     shrink-0
                     px-4 py-2.5
@@ -123,6 +127,8 @@ const FullNoteModal: React.FC<FullNoteModalProps> = ({ isOpen, onClose, note }) 
                     shadow-[0_8px_20px_rgba(58,107,191,0.35)]
                     hover:brightness-110
                     transition
+                    disabled:opacity-50
+                    disabled:cursor-not-allowed
                   "
                 >
                   Linki aç
