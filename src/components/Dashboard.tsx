@@ -237,7 +237,7 @@ const Dashboard: React.FC = () => {
             <header className="flex items-start justify-between gap-6 mb-6">
               <div>
                 <p className="text-xs uppercase tracking-[0.25em] text-[#0F1A40]/55">
-                  SELECTED COUNTRY
+                  SEÇİLİ ÜLKE
                 </p>
                 <h1 className="mt-2 text-3xl font-semibold text-[#0F1A40]">
                   {selectedCountryName}
