@@ -146,7 +146,7 @@ const EditNoteModal: React.FC<EditNoteModalProps> = ({
                 {links.map((link) => (
                   <div
                     key={link.id}
-                    className="flex items-center gap-2 p-2 rounded-lg bg-[#F8FAFF] border border-[#E0E7FF]"
+                    className="flex items-center gap-2 p-2 rounded-lg bg-[#F8FAFF] border border-[#E0E7FF] min-w-0"
                   >
                     <a
                       href={link.url}
@@ -159,14 +159,14 @@ const EditNoteModal: React.FC<EditNoteModalProps> = ({
                           : `https://${link.url}`;
                         window.open(url, '_blank', 'noopener,noreferrer');
                       }}
-                      className="flex-1 text-xs text-[#3A6BBF] hover:underline truncate"
+                      className="flex-1 text-xs text-[#3A6BBF] hover:underline break-words min-w-0"
                     >
                       {link.title}
                     </a>
                     <button
                       type="button"
                       onClick={() => onDeleteLink(link.id)}
-                      className="text-red-500 hover:text-red-700"
+                      className="text-red-500 hover:text-red-700 shrink-0"
                       title="Linki sil"
                     >
                       <Trash2 size={12} />

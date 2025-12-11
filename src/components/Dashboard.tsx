@@ -295,20 +295,21 @@ const Dashboard: React.FC = () => {
             <section className="mb-4">
               <div
                 className="
-                  flex flex-wrap items-center gap-4
-                  rounded-2xl bg-[#EEF4FF]
+                  flex items-center gap-3
+                  rounded-xl bg-[#EEF4FF]
                   border border-[#D5E4FF]
-                  px-4 py-3
+                  px-3 py-2
+                  overflow-x-auto
                 "
               >
-                <div className="flex items-center gap-2">
-                  <span className="h-2 w-2 rounded-full bg-[#3A6BBF]" />
-                  <span className="text-[11px] font-semibold tracking-[0.18em] text-[#0F1A40]/70 uppercase">
-                    TARİH FİLTRESİ
+                <div className="flex items-center gap-2 shrink-0">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#3A6BBF]" />
+                  <span className="text-[10px] font-semibold tracking-[0.16em] text-[#0F1A40]/70 uppercase">
+                    Tarih
                   </span>
                 </div>
 
-                <div className="flex items-center gap-2 flex-wrap">
+                <div className="flex items-center gap-2 shrink-0">
                   {[
                     { id: "all", label: "Tümü" },
                     { id: "today", label: "Bugün" },
@@ -324,8 +325,8 @@ const Dashboard: React.FC = () => {
                           setSpecificDate("");
                         }}
                         className={[
-                          "inline-flex items-center gap-2",
-                          "px-3.5 py-1.5 rounded-full text-xs font-medium border transition",
+                          "inline-flex items-center gap-1.5",
+                          "px-2.5 py-1 rounded-full text-[11px] font-medium border transition",
                           isActive
                             ? "bg-white text-[#0F1A40] border-[#AFC6FF] shadow-[0_4px_14px_rgba(15,26,64,0.10)]"
                             : "bg-[#DFE8FF] text-[#0F1A40]/75 border-transparent hover:bg-white/80 hover:border-[#C3D3FF]",
@@ -333,7 +334,7 @@ const Dashboard: React.FC = () => {
                       >
                         <span
                           className={
-                            "h-2 w-2 rounded-full " +
+                            "h-1.5 w-1.5 rounded-full " +
                             (isActive ? "bg-[#3A6BBF]" : "bg-[#B5C7F5]")
                           }
                         />
@@ -342,8 +343,8 @@ const Dashboard: React.FC = () => {
                     );
                   })}
                   
-                  <div className="flex items-center gap-2 ml-2">
-                    <span className="text-[11px] font-medium text-[#0F1A40]/60">veya</span>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <span className="text-[10px] font-medium text-[#0F1A40]/60">veya</span>
                     <input
                       type="date"
                       value={specificDate}
@@ -354,7 +355,7 @@ const Dashboard: React.FC = () => {
                         }
                       }}
                       className={[
-                        "px-3 py-1.5 rounded-full text-xs font-medium border transition",
+                        "w-32 px-2 py-1 rounded-full text-[11px] font-medium border transition",
                         specificDate
                           ? "bg-white text-[#0F1A40] border-[#AFC6FF] shadow-[0_4px_14px_rgba(15,26,64,0.10)]"
                           : "bg-[#DFE8FF] text-[#0F1A40]/75 border-transparent hover:bg-white/80 hover:border-[#C3D3FF]",
@@ -363,7 +364,7 @@ const Dashboard: React.FC = () => {
                     {specificDate && (
                       <button
                         onClick={() => setSpecificDate("")}
-                        className="text-xs text-[#0F1A40]/60 hover:text-[#0F1A40] transition"
+                        className="text-[11px] text-[#0F1A40]/60 hover:text-[#0F1A40] transition shrink-0"
                         title="Tarih seçimini temizle"
                       >
                         ✕
@@ -372,16 +373,16 @@ const Dashboard: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="ml-auto w-full sm:w-56">
+                <div className="ml-auto shrink-0 w-48">
                   <input
                     placeholder="Notlarda ara..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     className="
-                      w-full px-3 py-2
+                      w-full px-2.5 py-1
                       rounded-xl bg-white
                       border border-[#D5E4FF]
-                      text-sm text-[#0F1A40]
+                      text-[11px] text-[#0F1A40]
                       placeholder:text-[#0F1A40]/45
                       shadow-sm
                       focus:outline-none focus:ring-2 focus:ring-[#AFC6FF]
@@ -471,7 +472,7 @@ const Dashboard: React.FC = () => {
                   </div>
 
                   <div className="mt-2 flex-1 rounded-2xl border border-[#E0E7FF] bg-[#F8FAFF] px-4 py-3 overflow-y-auto">
-                    <p className="text-sm leading-relaxed text-[#0F1A40]/80 whitespace-pre-line">
+                    <p className="text-sm leading-relaxed text-[#0F1A40]/80 whitespace-pre-line break-words">
                       {selectedNote.content}
                     </p>
                   </div>
@@ -530,19 +531,19 @@ const Dashboard: React.FC = () => {
                           {links.map((link) => (
                             <div
                               key={link.id}
-                              className="flex items-center gap-2 p-2 rounded-lg bg-[#F8FAFF] border border-[#E0E7FF]"
+                              className="flex items-center gap-2 p-2 rounded-lg bg-[#F8FAFF] border border-[#E0E7FF] min-w-0"
                             >
                               <a
                                 href={link.url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="flex-1 text-xs text-[#3A6BBF] hover:underline truncate"
+                                className="flex-1 text-xs text-[#3A6BBF] hover:underline break-words min-w-0"
                               >
                                 {link.title}
                               </a>
                               <button
                                 onClick={() => handleDeleteLink(link.id)}
-                                className="text-red-500 hover:text-red-700"
+                                className="text-red-500 hover:text-red-700 shrink-0"
                                 title="Linki sil"
                               >
                                 <Trash2 size={12} />
