@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Paperclip, X } from "lucide-react";
 
 type NewNoteModalProps = {
   isOpen: boolean;
@@ -11,6 +12,7 @@ type NewNoteModalProps = {
     content: string;
     linkUrl?: string;
     linkTitle?: string;
+    attachmentPaths?: string[];
   }) => void;
 };
 
@@ -27,8 +29,23 @@ const NewNoteModal: React.FC<NewNoteModalProps> = ({
   const [summary, setSummary] = useState("");
   const [linkUrl, setLinkUrl] = useState("");
   const [linkTitle, setLinkTitle] = useState("");
+  const [pendingFiles, setPendingFiles] = useState<string[]>([]);
 
   if (!isOpen) return null;
+
+  const handleAddFiles = async () => {
+    const filePaths = await window.electronAPI.pickAttachments();
+    if (filePaths.length > 0) {
+      setPendingFiles((prev) => {
+        const combined = [...prev, ...filePaths];
+        return Array.from(new Set(combined));
+      });
+    }
+  };
+
+  const handleRemoveFile = (pathToRemove: string) => {
+    setPendingFiles((prev) => prev.filter((p) => p !== pathToRemove));
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,12 +55,14 @@ const NewNoteModal: React.FC<NewNoteModalProps> = ({
       content: summary,
       linkUrl: linkUrl.trim() || undefined,
       linkTitle: linkTitle.trim() || undefined,
+      attachmentPaths: pendingFiles.length > 0 ? pendingFiles : undefined,
     });
     setTitle("");
     setDate(new Date().toISOString().slice(0, 10));
     setSummary("");
     setLinkUrl("");
     setLinkTitle("");
+    setPendingFiles([]);
   };
 
   return (
@@ -164,6 +183,50 @@ const NewNoteModal: React.FC<NewNoteModalProps> = ({
                 onChange={(e) => setLinkTitle(e.target.value)}
               />
             </div>
+          </div>
+
+          <div className="space-y-2 pt-2 border-t border-[#E0E7FF]">
+            <div className="flex items-center justify-between">
+              <p className="text-[11px] font-semibold tracking-[0.18em] text-[#0F1A40]/65 uppercase">
+                Dosya Eklentileri (Opsiyonel)
+              </p>
+              <button
+                type="button"
+                onClick={handleAddFiles}
+                className="flex items-center gap-1 text-xs text-[#3A6BBF] hover:underline"
+              >
+                <Paperclip size={14} />
+                Dosya Ekle
+              </button>
+            </div>
+
+            {pendingFiles.length > 0 && (
+              <div className="space-y-1">
+                {pendingFiles.map((filePath, index) => {
+                  const fileName = filePath.split(/[\\/]/).pop() || filePath;
+                  return (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-[#F8FAFF] border border-[#E0E7FF]"
+                    >
+                      <span className="text-xs text-[#0F1A40] truncate flex-1">
+                        {fileName}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveFile(filePath)}
+                        className="text-[#0F1A40]/60 hover:text-[#0F1A40]"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  );
+                })}
+                <p className="text-[10px] text-[#0F1A40]/60 mt-1">
+                  {pendingFiles.length} dosya seçildi
+                </p>
+              </div>
+            )}
           </div>
 
           <div className="mt-2 flex items-center justify-between">

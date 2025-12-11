@@ -202,6 +202,7 @@ const Dashboard: React.FC = () => {
     content: string;
     linkUrl?: string;
     linkTitle?: string;
+    attachmentPaths?: string[];
   }) => {
     if (!selectedCountryId) return;
 
@@ -220,8 +221,18 @@ const Dashboard: React.FC = () => {
       await window.electronAPI.addLink(newNoteId, url, title);
     }
 
+    if (noteData.attachmentPaths && noteData.attachmentPaths.length > 0) {
+      await window.electronAPI.addAttachments(newNoteId, noteData.attachmentPaths);
+    }
+
     await loadNotes();
     await loadCountries();
+    
+    const newNote = await window.electronAPI.getNoteById(newNoteId);
+    if (newNote) {
+      setSelectedNote(newNote);
+    }
+    
     setIsQuickModalOpen(false);
   };
 
@@ -376,18 +387,17 @@ const Dashboard: React.FC = () => {
       {/* Background + centered app card */}
       <div className="h-screen w-screen bg-[#F3F7FF] flex items-center justify-center p-8">
         <div className="w-full h-full max-w-7xl max-h-[92vh] rounded-3xl bg-white border border-[#D5E4FF] shadow-[0_24px_70px_rgba(15,26,64,0.12)] flex overflow-hidden">
-          <div style={{ width: sidebarWidth, minWidth: 240, maxWidth: 500 }} className="shrink-0">
+          <div style={{ width: sidebarWidth, minWidth: 240, maxWidth: 500 }} className="shrink-0 relative">
             <CountrySidebar
               countries={countries}
               selected={selectedCountryId}
               setSelected={setSelectedCountryId}
             />
+            <div
+              onMouseDown={handleMouseDown}
+              className="absolute top-0 right-0 w-[6px] h-full cursor-col-resize hover:bg-[#3A6BBF]/30 transition-colors select-none bg-transparent z-20 translate-x-1/2"
+            />
           </div>
-          
-          <div
-            onMouseDown={handleMouseDown}
-            className="w-1.5 shrink-0 cursor-col-resize hover:bg-[#3A6BBF]/30 transition-colors select-none bg-transparent"
-          />
 
           <main className="flex-1 bg-[#F8FAFF] px-8 py-7 flex flex-col min-w-0">
             <header className="flex items-start justify-between gap-6 mb-6">
@@ -523,11 +533,11 @@ const Dashboard: React.FC = () => {
             </section>
 
             {/* Notes + Detail columns */}
-            <section className="flex-1 flex gap-6 overflow-hidden">
+            <section className="flex-1 flex overflow-hidden">
               {/* Notes list */}
               <div 
                 style={{ width: notesListWidth, minWidth: 280, maxWidth: 600 }} 
-                className="shrink-0 rounded-2xl border border-[#D5E4FF] bg-white px-5 py-4 h-full overflow-y-auto overflow-x-hidden"
+                className="shrink-0 rounded-2xl border border-[#D5E4FF] bg-white px-5 py-4 h-full overflow-y-auto overflow-x-hidden relative"
               >
                 {filteredNotes.length === 0 ? (
                   <p className="text-sm text-[#0F1A40]/60">Henüz not bulunmuyor.</p>
@@ -544,15 +554,14 @@ const Dashboard: React.FC = () => {
                     />
                   ))
                 )}
+                {/* Resizer handle for notes list */}
+                {isDetailVisible && selectedNote && (
+                  <div
+                    onMouseDown={handleMouseDownNotesList}
+                    className="absolute top-0 right-0 w-[6px] h-full cursor-col-resize hover:bg-[#3A6BBF]/30 transition-colors select-none bg-transparent z-20 translate-x-1/2"
+                  />
+                )}
               </div>
-
-              {/* Resizer handle for notes list */}
-              {isDetailVisible && selectedNote && (
-                <div
-                  onMouseDown={handleMouseDownNotesList}
-                  className="w-1.5 shrink-0 cursor-col-resize hover:bg-[#3A6BBF]/30 transition-colors select-none bg-transparent"
-                />
-              )}
 
               {/* Detail panel */}
               {isDetailVisible && selectedNote && (
