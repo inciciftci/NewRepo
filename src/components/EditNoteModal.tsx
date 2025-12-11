@@ -40,12 +40,12 @@ const EditNoteModal: React.FC<EditNoteModalProps> = ({
   const [linkTitle, setLinkTitle] = useState("");
 
   useEffect(() => {
-    if (note) {
+    if (isOpen && note) {
       setTitle(note.title);
       setDate(note.date);
       setContent(note.content);
     }
-  }, [note]);
+  }, [isOpen, note?.id]);
 
   if (!isOpen || !note) return null;
 

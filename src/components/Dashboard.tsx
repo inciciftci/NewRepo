@@ -76,6 +76,14 @@ const Dashboard: React.FC = () => {
   const [isResizing, setIsResizing] = useState(false);
   const startXRef = useRef(0);
   const startWidthRef = useRef(0);
+  
+  const [notesListWidth, setNotesListWidth] = useState<number>(() => {
+    const saved = localStorage.getItem('notesListWidth');
+    return saved ? Number(saved) : 420;
+  });
+  const [isResizingNotesList, setIsResizingNotesList] = useState(false);
+  const startXRefNotesList = useRef(0);
+  const startWidthRefNotesList = useRef(0);
 
   useEffect(() => {
     loadCountries();
@@ -295,6 +303,46 @@ const Dashboard: React.FC = () => {
     };
   }, [isResizing]);
 
+  const handleMouseDownNotesList = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsResizingNotesList(true);
+    startXRefNotesList.current = e.clientX;
+    startWidthRefNotesList.current = notesListWidth;
+  };
+
+  useEffect(() => {
+    if (!isResizingNotesList) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const delta = e.clientX - startXRefNotesList.current;
+      const newWidth = startWidthRefNotesList.current + delta;
+      const minWidth = 280;
+      const maxWidth = 600;
+      const constrainedWidth = Math.min(Math.max(newWidth, minWidth), maxWidth);
+      setNotesListWidth(constrainedWidth);
+    };
+
+    const handleMouseUp = () => {
+      setIsResizingNotesList(false);
+      localStorage.setItem('notesListWidth', notesListWidth.toString());
+    };
+
+    const handleBlur = () => {
+      setIsResizingNotesList(false);
+      localStorage.setItem('notesListWidth', notesListWidth.toString());
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+    window.addEventListener('blur', handleBlur);
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener('blur', handleBlur);
+    };
+  }, [isResizingNotesList]);
+
   return (
     <>
       {/* Background + centered app card */}
@@ -449,7 +497,10 @@ const Dashboard: React.FC = () => {
             {/* Notes + Detail columns */}
             <section className="flex-1 flex gap-6 overflow-hidden">
               {/* Notes list */}
-              <div className="flex-1 rounded-2xl border border-[#D5E4FF] bg-white px-5 py-4 h-full overflow-y-auto overflow-x-hidden">
+              <div 
+                style={{ width: notesListWidth, minWidth: 280, maxWidth: 600 }} 
+                className="shrink-0 rounded-2xl border border-[#D5E4FF] bg-white px-5 py-4 h-full overflow-y-auto overflow-x-hidden"
+              >
                 {filteredNotes.length === 0 ? (
                   <p className="text-sm text-[#0F1A40]/60">Henüz not bulunmuyor.</p>
                 ) : (
@@ -467,9 +518,17 @@ const Dashboard: React.FC = () => {
                 )}
               </div>
 
+              {/* Resizer handle for notes list */}
+              {isDetailVisible && selectedNote && (
+                <div
+                  onMouseDown={handleMouseDownNotesList}
+                  className="w-1.5 shrink-0 cursor-col-resize hover:bg-[#3A6BBF]/30 transition-colors select-none bg-[#D5E4FF]/50"
+                />
+              )}
+
               {/* Detail panel */}
               {isDetailVisible && selectedNote && (
-                <aside className="flex-1 rounded-2xl border border-[#D5E4FF] bg-white px-6 py-5 flex flex-col">
+                <aside className="flex-1 min-w-0 rounded-2xl border border-[#D5E4FF] bg-white px-6 py-5 flex flex-col">
                   <div className="mb-3 flex items-start justify-between gap-4">
                     <div className="space-y-1">
                       <p className="text-[11px] font-semibold tracking-[0.16em] text-[#0F1A40]/60 uppercase">
