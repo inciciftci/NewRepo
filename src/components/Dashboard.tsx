@@ -23,18 +23,18 @@ const NoteCard: React.FC<NoteCardProps> = ({ note, isActive, onClick }) => {
     <article
       onClick={onClick}
       className={[
-        "group rounded-2xl border px-5 py-4 mb-3 cursor-pointer transition",
+        "group rounded-2xl border px-5 py-4 mb-3 cursor-pointer transition mx-auto max-w-[720px] min-w-0",
         isActive
           ? "border-[#C4D3FF] bg-white shadow-[0_10px_24px_rgba(15,26,64,0.10)]"
           : "border-[#DFE6FF] bg-[#F9FBFF] hover:bg-white hover:border-[#C4D3FF] hover:shadow-[0_10px_24px_rgba(15,26,64,0.08)]",
       ].join(" ")}
     >
       <div className="flex items-start justify-between gap-3">
-        <div className="flex-1">
+        <div className="flex-1 min-w-0">
           <h2 className="text-sm font-semibold text-[#0F1A40] group-hover:text-[#20448A]">
             {note.title}
           </h2>
-          <p className="mt-1 text-xs leading-relaxed text-[#0F1A40]/75 line-clamp-2">
+          <p className="mt-1 text-xs leading-relaxed text-[#0F1A40]/75 line-clamp-2 break-all overflow-hidden">
             {preview}
           </p>
 
@@ -69,6 +69,11 @@ const Dashboard: React.FC = () => {
   const [isDetailVisible, setIsDetailVisible] = useState(true);
   const [isFullOpen, setIsFullOpen] = useState(false);
   const [links, setLinks] = useState<Link[]>([]);
+  const [sidebarWidth, setSidebarWidth] = useState<number>(() => {
+    const saved = localStorage.getItem('sidebarWidth');
+    return saved ? Number(saved) : 320;
+  });
+  const [isResizing, setIsResizing] = useState(false);
 
   useEffect(() => {
     loadCountries();
@@ -248,18 +253,55 @@ const Dashboard: React.FC = () => {
       }
     : null;
 
+  const handleMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsResizing(true);
+  };
+
+  useEffect(() => {
+    if (!isResizing) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const newWidth = e.clientX;
+      const minWidth = 240;
+      const maxWidth = 500;
+      const constrainedWidth = Math.min(Math.max(newWidth, minWidth), maxWidth);
+      setSidebarWidth(constrainedWidth);
+    };
+
+    const handleMouseUp = () => {
+      setIsResizing(false);
+      localStorage.setItem('sidebarWidth', sidebarWidth.toString());
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isResizing, sidebarWidth]);
+
   return (
     <>
       {/* Background + centered app card */}
       <div className="h-screen w-screen bg-[#F3F7FF] flex items-center justify-center p-8">
         <div className="w-full h-full max-w-7xl max-h-[92vh] rounded-3xl bg-white border border-[#D5E4FF] shadow-[0_24px_70px_rgba(15,26,64,0.12)] flex overflow-hidden">
-          <CountrySidebar
-            countries={countries}
-            selected={selectedCountryId}
-            setSelected={setSelectedCountryId}
-          />
+          <div className="relative flex" style={{ width: sidebarWidth, minWidth: 240, maxWidth: 500 }}>
+            <CountrySidebar
+              countries={countries}
+              selected={selectedCountryId}
+              setSelected={setSelectedCountryId}
+            />
+            <div
+              onMouseDown={handleMouseDown}
+              className="absolute right-0 top-0 bottom-0 w-1.5 cursor-col-resize hover:bg-[#3A6BBF]/30 transition-colors select-none"
+              style={{ zIndex: 10 }}
+            />
+          </div>
 
-          <main className="flex-1 bg-[#F8FAFF] px-8 py-7 flex flex-col">
+          <main className="flex-1 bg-[#F8FAFF] px-8 py-7 flex flex-col min-w-0">
             <header className="flex items-start justify-between gap-6 mb-6">
               <div>
                 <p className="text-xs uppercase tracking-[0.25em] text-[#0F1A40]/55">
@@ -295,11 +337,10 @@ const Dashboard: React.FC = () => {
             <section className="mb-4">
               <div
                 className="
-                  flex items-center gap-3
+                  flex flex-wrap items-center gap-3
                   rounded-xl bg-[#EEF4FF]
                   border border-[#D5E4FF]
                   px-3 py-2
-                  overflow-x-auto
                 "
               >
                 <div className="flex items-center gap-2 shrink-0">
@@ -396,7 +437,7 @@ const Dashboard: React.FC = () => {
             {/* Notes + Detail columns */}
             <section className="flex-1 flex gap-6 overflow-hidden">
               {/* Notes list */}
-              <div className="flex-1 rounded-2xl border border-[#D5E4FF] bg-white px-5 py-4 h-full overflow-y-auto">
+              <div className="flex-1 rounded-2xl border border-[#D5E4FF] bg-white px-5 py-4 h-full overflow-y-auto overflow-x-hidden">
                 {filteredNotes.length === 0 ? (
                   <p className="text-sm text-[#0F1A40]/60">Henüz not bulunmuyor.</p>
                 ) : (
