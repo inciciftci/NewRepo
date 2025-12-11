@@ -60,6 +60,7 @@ const Dashboard: React.FC = () => {
   const [countries, setCountries] = useState<CountryWithCount[]>([]);
   const [selectedCountryId, setSelectedCountryId] = useState<number | undefined>();
   const [dateFilter, setDateFilter] = useState<string>("all");
+  const [specificDate, setSpecificDate] = useState<string>("");
   const [search, setSearch] = useState("");
   const [isQuickModalOpen, setIsQuickModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -119,6 +120,10 @@ const Dashboard: React.FC = () => {
     : "Bir ülke seçin";
 
   const getFilteredNotesByDate = (allNotes: Note[]) => {
+    if (specificDate) {
+      return allNotes.filter((note) => note.date === specificDate);
+    }
+
     const today = new Date();
     const yyyy = today.getFullYear();
     const mm = String(today.getMonth() + 1).padStart(2, '0');
@@ -310,11 +315,14 @@ const Dashboard: React.FC = () => {
                     { id: "week", label: "Bu Hafta" },
                     { id: "month", label: "Bu Ay" },
                   ].map((f) => {
-                    const isActive = dateFilter === f.id;
+                    const isActive = dateFilter === f.id && !specificDate;
                     return (
                       <button
                         key={f.id}
-                        onClick={() => setDateFilter(f.id)}
+                        onClick={() => {
+                          setDateFilter(f.id);
+                          setSpecificDate("");
+                        }}
                         className={[
                           "inline-flex items-center gap-2",
                           "px-3.5 py-1.5 rounded-full text-xs font-medium border transition",
@@ -333,6 +341,35 @@ const Dashboard: React.FC = () => {
                       </button>
                     );
                   })}
+                  
+                  <div className="flex items-center gap-2 ml-2">
+                    <span className="text-[11px] font-medium text-[#0F1A40]/60">veya</span>
+                    <input
+                      type="date"
+                      value={specificDate}
+                      onChange={(e) => {
+                        setSpecificDate(e.target.value);
+                        if (e.target.value) {
+                          setDateFilter("all");
+                        }
+                      }}
+                      className={[
+                        "px-3 py-1.5 rounded-full text-xs font-medium border transition",
+                        specificDate
+                          ? "bg-white text-[#0F1A40] border-[#AFC6FF] shadow-[0_4px_14px_rgba(15,26,64,0.10)]"
+                          : "bg-[#DFE8FF] text-[#0F1A40]/75 border-transparent hover:bg-white/80 hover:border-[#C3D3FF]",
+                      ].join(" ")}
+                    />
+                    {specificDate && (
+                      <button
+                        onClick={() => setSpecificDate("")}
+                        className="text-xs text-[#0F1A40]/60 hover:text-[#0F1A40] transition"
+                        title="Tarih seçimini temizle"
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 <div className="ml-auto w-full sm:w-56">
