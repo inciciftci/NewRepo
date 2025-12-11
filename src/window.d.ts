@@ -1,4 +1,4 @@
-import type { Country, Note, Image, Link } from './types';
+import type { Country, Note, Image, Link, Attachment } from './types';
 
 export interface ElectronAPI {
   verifyPassword: (password: string) => Promise<boolean>;
@@ -17,6 +17,12 @@ export interface ElectronAPI {
   addLink: (noteId: number, url: string, title: string) => Promise<number>;
   deleteLink: (id: number) => Promise<boolean>;
   searchNotes: (query: string) => Promise<Note[]>;
+  pickAttachments: () => Promise<string[]>;
+  addAttachments: (noteId: number, filePaths: string[]) => Promise<Attachment[]>;
+  getAttachments: (noteId: number) => Promise<Attachment[]>;
+  deleteAttachment: (id: number) => Promise<boolean>;
+  reorderAttachments: (noteId: number, orderedIds: number[]) => Promise<boolean>;
+  openAttachment: (filepath: string) => Promise<boolean>;
 }
 
 declare global {

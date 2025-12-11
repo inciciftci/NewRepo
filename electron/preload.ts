@@ -17,4 +17,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
   addLink: (noteId: number, url: string, title: string) => ipcRenderer.invoke('add-link', noteId, url, title),
   deleteLink: (id: number) => ipcRenderer.invoke('delete-link', id),
   searchNotes: (query: string) => ipcRenderer.invoke('search-notes', query),
+  pickAttachments: () => ipcRenderer.invoke('attachments:pick'),
+  addAttachments: (noteId: number, filePaths: string[]) => ipcRenderer.invoke('attachments:add', noteId, filePaths),
+  getAttachments: (noteId: number) => ipcRenderer.invoke('attachments:get', noteId),
+  deleteAttachment: (id: number) => ipcRenderer.invoke('attachments:delete', id),
+  reorderAttachments: (noteId: number, orderedIds: number[]) => ipcRenderer.invoke('attachments:reorder', noteId, orderedIds),
+  openAttachment: (filepath: string) => ipcRenderer.invoke('attachments:open', filepath),
 });

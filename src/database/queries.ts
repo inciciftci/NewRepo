@@ -71,3 +71,42 @@ export function searchNotes(query: string): Note[] {
   const searchQuery = `%${query}%`;
   return db.prepare('SELECT * FROM notes WHERE title LIKE ? OR content LIKE ? ORDER BY updated_at DESC').all(searchQuery, searchQuery) as Note[];
 }
+
+export function getAttachmentsByNoteId(noteId: number): any[] {
+  return db.prepare('SELECT * FROM images WHERE note_id = ? ORDER BY order_index ASC').all(noteId) as any[];
+}
+
+export function getAttachmentById(id: number): any | undefined {
+  return db.prepare('SELECT * FROM images WHERE id = ?').get(id) as any | undefined;
+}
+
+export function addAttachment(
+  noteId: number,
+  filename: string,
+  filepath: string,
+  originalName: string,
+  mimeType: string,
+  fileSize: number,
+  orderIndex: number
+): any {
+  const result = db.prepare(
+    'INSERT INTO images (note_id, filename, filepath, original_name, mime_type, file_size, order_index) VALUES (?, ?, ?, ?, ?, ?, ?)'
+  ).run(noteId, filename, filepath, originalName, mimeType, fileSize, orderIndex);
+  
+  return db.prepare('SELECT * FROM images WHERE id = ?').get(result.lastInsertRowid) as any;
+}
+
+export function deleteAttachment(id: number): void {
+  db.prepare('DELETE FROM images WHERE id = ?').run(id);
+}
+
+export function reorderAttachments(noteId: number, orderedIds: number[]): void {
+  const updateStmt = db.prepare('UPDATE images SET order_index = ? WHERE id = ?');
+  const transaction = db.transaction((ids: number[]) => {
+    ids.forEach((id, index) => {
+      updateStmt.run(index, id);
+    });
+  });
+  
+  transaction(orderedIds);
+}

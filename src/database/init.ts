@@ -56,6 +56,8 @@ export function initDatabase() {
     CREATE INDEX IF NOT EXISTS idx_links_note_id ON links(note_id);
   `);
 
+  migrateImagesTable();
+
   const authCount = db.prepare('SELECT COUNT(*) as count FROM auth').get() as { count: number };
   if (authCount.count === 0) {
     const defaultPassword = 'admin123';
@@ -67,6 +69,36 @@ export function initDatabase() {
   const countryCount = db.prepare('SELECT COUNT(*) as count FROM countries').get() as { count: number };
   if (countryCount.count === 0) {
     seedCountries();
+  }
+}
+
+function migrateImagesTable() {
+  const columns = db.prepare('PRAGMA table_info(images)').all() as Array<{ name: string }>;
+  const columnNames = columns.map(col => col.name);
+
+  if (!columnNames.includes('mime_type')) {
+    db.exec('ALTER TABLE images ADD COLUMN mime_type TEXT NULL');
+    console.log('Added mime_type column to images table');
+  }
+
+  if (!columnNames.includes('file_size')) {
+    db.exec('ALTER TABLE images ADD COLUMN file_size INTEGER NULL');
+    console.log('Added file_size column to images table');
+  }
+
+  if (!columnNames.includes('order_index')) {
+    db.exec('ALTER TABLE images ADD COLUMN order_index INTEGER NOT NULL DEFAULT 0');
+    console.log('Added order_index column to images table');
+  }
+
+  if (!columnNames.includes('original_name')) {
+    db.exec('ALTER TABLE images ADD COLUMN original_name TEXT NULL');
+    console.log('Added original_name column to images table');
+  }
+
+  if (!columnNames.includes('created_at')) {
+    db.exec("ALTER TABLE images ADD COLUMN created_at TEXT NOT NULL DEFAULT (datetime('now'))");
+    console.log('Added created_at column to images table');
   }
 }
 

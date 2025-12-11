@@ -3,8 +3,8 @@ import CountrySidebar from "./CountrySidebar";
 import NewNoteModal from "./NewNoteModal";
 import EditNoteModal from "./EditNoteModal";
 import FullNoteModal, { FullNote } from "./FullNoteModal";
-import { X, Maximize2, Edit2, Trash2 } from "lucide-react";
-import type { Country, Note, Link } from "../types";
+import { X, Maximize2, Edit2, Trash2, Paperclip, FileText, ExternalLink } from "lucide-react";
+import type { Country, Note, Link, Attachment } from "../types";
 import { displayCountryName } from "../utils/country-tr";
 
 type CountryWithCount = Country & { count: number };
@@ -69,6 +69,7 @@ const Dashboard: React.FC = () => {
   const [isDetailVisible, setIsDetailVisible] = useState(true);
   const [isFullOpen, setIsFullOpen] = useState(false);
   const [links, setLinks] = useState<Link[]>([]);
+  const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [sidebarWidth, setSidebarWidth] = useState<number>(() => {
     const saved = localStorage.getItem('sidebarWidth');
     return saved ? Number(saved) : 320;
@@ -125,8 +126,16 @@ const Dashboard: React.FC = () => {
     setLinks(data);
   };
 
+  const loadAttachments = async (noteId: number) => {
+    const data = await window.electronAPI.getAttachments(noteId);
+    setAttachments(data);
+  };
+
   useEffect(() => {
-    if (selectedNote) loadLinks(selectedNote.id);
+    if (selectedNote) {
+      loadLinks(selectedNote.id);
+      loadAttachments(selectedNote.id);
+    }
   }, [selectedNote]);
 
   const selectedCountry = countries.find((c) => c.id === selectedCountryId);
@@ -251,6 +260,25 @@ const Dashboard: React.FC = () => {
     if (!window.confirm("Bu linki silmek istediğinizden emin misiniz?")) return;
     await window.electronAPI.deleteLink(linkId);
     if (selectedNote) await loadLinks(selectedNote.id);
+  };
+
+  const handleAddAttachments = async () => {
+    if (!selectedNote) return;
+    const filePaths = await window.electronAPI.pickAttachments();
+    if (filePaths.length === 0) return;
+    
+    await window.electronAPI.addAttachments(selectedNote.id, filePaths);
+    await loadAttachments(selectedNote.id);
+  };
+
+  const handleDeleteAttachment = async (attachmentId: number) => {
+    if (!window.confirm("Bu eklentiyi silmek istediğinizden emin misiniz?")) return;
+    await window.electronAPI.deleteAttachment(attachmentId);
+    if (selectedNote) await loadAttachments(selectedNote.id);
+  };
+
+  const handleOpenAttachment = async (filepath: string) => {
+    await window.electronAPI.openAttachment(filepath);
   };
 
   const fullNote: FullNote | null = selectedNote
@@ -662,6 +690,69 @@ const Dashboard: React.FC = () => {
                               </button>
                             </div>
                           ))}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <p className="text-[11px] font-semibold tracking-[0.18em] text-[#0F1A40]/65 uppercase">
+                          Eklentiler
+                        </p>
+                        <button
+                          onClick={handleAddAttachments}
+                          className="text-xs text-[#3A6BBF] hover:underline"
+                        >
+                          + Dosya Ekle
+                        </button>
+                      </div>
+
+                      {attachments.length === 0 ? (
+                        <p className="text-xs text-[#0F1A40]/50">
+                          Henüz eklenti bulunmuyor
+                        </p>
+                      ) : (
+                        <div className="grid grid-cols-3 gap-2">
+                          {attachments.map((attachment) => {
+                            const isPdf = attachment.mime_type === 'application/pdf';
+                            return (
+                              <div
+                                key={attachment.id}
+                                className="relative group rounded-lg border border-[#E0E7FF] bg-[#F8FAFF] p-2 hover:border-[#3A6BBF]/50 transition"
+                              >
+                                {isPdf ? (
+                                  <div className="flex flex-col items-center justify-center h-24 bg-[#EEF4FF] rounded">
+                                    <FileText size={32} className="text-[#3A6BBF]" />
+                                    <p className="text-[10px] text-[#0F1A40]/60 mt-1 truncate w-full text-center px-1">
+                                      {attachment.original_name || attachment.filename}
+                                    </p>
+                                  </div>
+                                ) : (
+                                  <div className="h-24 bg-[#EEF4FF] rounded overflow-hidden flex items-center justify-center">
+                                    <p className="text-xs text-[#0F1A40]/60">
+                                      Görsel
+                                    </p>
+                                  </div>
+                                )}
+                                <div className="absolute top-1 right-1 flex gap-1 opacity-0 group-hover:opacity-100 transition">
+                                  <button
+                                    onClick={() => handleOpenAttachment(attachment.filepath)}
+                                    className="p-1 rounded bg-[#3A6BBF] text-white hover:brightness-110 transition"
+                                    title="Aç"
+                                  >
+                                    <ExternalLink size={12} />
+                                  </button>
+                                  <button
+                                    onClick={() => handleDeleteAttachment(attachment.id)}
+                                    className="p-1 rounded bg-red-500 text-white hover:bg-red-600 transition"
+                                    title="Sil"
+                                  >
+                                    <Trash2 size={12} />
+                                  </button>
+                                </div>
+                              </div>
+                            );
+                          })}
                         </div>
                       )}
                     </div>

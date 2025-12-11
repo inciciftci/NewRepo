@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, ipcMain, dialog, shell } from 'electron';
 import path from 'path';
 import { initDatabase, closeDatabase } from '../src/database/init';
 import * as queries from '../src/database/queries';
@@ -131,4 +131,140 @@ ipcMain.handle('delete-link', async (_event, id: number) => {
 
 ipcMain.handle('search-notes', async (_event, query: string) => {
   return queries.searchNotes(query);
+});
+
+function sanitizeFilename(filename: string): string {
+  const ext = path.extname(filename);
+  const base = path.basename(filename, ext);
+  const sanitized = base.replace(/[^a-zA-Z0-9-_]/g, '_').substring(0, 50);
+  return `${Date.now()}-${sanitized}${ext.toLowerCase()}`;
+}
+
+function getAttachmentsDir(noteId: number): string {
+  const baseDir = isDev 
+    ? path.join(process.cwd(), 'data', 'attachments')
+    : path.join(app.getPath('userData'), 'attachments');
+  return path.join(baseDir, noteId.toString());
+}
+
+ipcMain.handle('attachments:pick', async () => {
+  if (!mainWindow) return [];
+  
+  const result = await dialog.showOpenDialog(mainWindow, {
+    properties: ['openFile', 'multiSelections'],
+    filters: [
+      { name: 'Images and PDFs', extensions: ['png', 'jpg', 'jpeg', 'webp', 'gif', 'pdf'] },
+      { name: 'All Files', extensions: ['*'] }
+    ]
+  });
+  
+  return result.canceled ? [] : result.filePaths;
+});
+
+ipcMain.handle('attachments:add', async (_event, noteId: number, filePaths: string[]) => {
+  const attachmentsDir = getAttachmentsDir(noteId);
+  
+  if (!fs.existsSync(attachmentsDir)) {
+    fs.mkdirSync(attachmentsDir, { recursive: true });
+  }
+  
+  const allowedExtensions = ['.png', '.jpg', '.jpeg', '.webp', '.gif', '.pdf'];
+  const maxFileSize = 10 * 1024 * 1024;
+  const addedAttachments = [];
+  
+  for (const sourcePath of filePaths) {
+    try {
+      const ext = path.extname(sourcePath).toLowerCase();
+      if (!allowedExtensions.includes(ext)) {
+        console.warn(`Skipping file with unsupported extension: ${sourcePath}`);
+        continue;
+      }
+      
+      const stats = fs.statSync(sourcePath);
+      if (stats.size > maxFileSize) {
+        console.warn(`Skipping file larger than 10MB: ${sourcePath}`);
+        continue;
+      }
+      
+      const originalName = path.basename(sourcePath);
+      const sanitizedFilename = sanitizeFilename(originalName);
+      const destPath = path.join(attachmentsDir, sanitizedFilename);
+      const relativePath = path.join('attachments', noteId.toString(), sanitizedFilename);
+      
+      fs.copyFileSync(sourcePath, destPath);
+      
+      const mimeType = ext === '.pdf' ? 'application/pdf' : `image/${ext.substring(1)}`;
+      
+      const existingAttachments = queries.getAttachmentsByNoteId(noteId);
+      const maxOrder = existingAttachments.length > 0 
+        ? Math.max(...existingAttachments.map((a: any) => a.order_index || 0))
+        : -1;
+      
+      const attachment = queries.addAttachment(
+        noteId,
+        sanitizedFilename,
+        relativePath,
+        originalName,
+        mimeType,
+        stats.size,
+        maxOrder + 1
+      );
+      
+      addedAttachments.push(attachment);
+    } catch (error) {
+      console.error(`Failed to add attachment ${sourcePath}:`, error);
+    }
+  }
+  
+  return addedAttachments;
+});
+
+ipcMain.handle('attachments:get', async (_event, noteId: number) => {
+  return queries.getAttachmentsByNoteId(noteId);
+});
+
+ipcMain.handle('attachments:delete', async (_event, id: number) => {
+  const attachment = queries.getAttachmentById(id);
+  if (attachment) {
+    const baseDir = isDev 
+      ? path.join(process.cwd(), 'data')
+      : app.getPath('userData');
+    const fullPath = path.join(baseDir, attachment.filepath);
+    
+    if (fs.existsSync(fullPath)) {
+      fs.unlinkSync(fullPath);
+    }
+  }
+  
+  queries.deleteAttachment(id);
+  return true;
+});
+
+ipcMain.handle('attachments:reorder', async (_event, noteId: number, orderedIds: number[]) => {
+  queries.reorderAttachments(noteId, orderedIds);
+  return true;
+});
+
+ipcMain.handle('attachments:open', async (_event, filepath: string) => {
+  const baseDir = isDev 
+    ? path.join(process.cwd(), 'data')
+    : app.getPath('userData');
+  const fullPath = path.join(baseDir, filepath);
+  
+  if (fs.existsSync(fullPath)) {
+    await shell.openPath(fullPath);
+    return true;
+  }
+  
+  return false;
+});
+
+ipcMain.handle('delete-note', async (_event, id: number) => {
+  const attachmentsDir = getAttachmentsDir(id);
+  if (fs.existsSync(attachmentsDir)) {
+    fs.rmSync(attachmentsDir, { recursive: true, force: true });
+  }
+  
+  queries.deleteNote(id);
+  return true;
 });
