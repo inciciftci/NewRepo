@@ -212,6 +212,8 @@ const Dashboard: React.FC = () => {
       noteData.date,
       noteData.content
     );
+    console.log('[CreateNote] newNoteId:', newNoteId, 'type:', typeof newNoteId);
+    console.log('[CreateNote] attachmentPaths:', noteData.attachmentPaths);
 
     if (noteData.linkUrl) {
       const url = noteData.linkUrl.startsWith('http') 
@@ -222,7 +224,9 @@ const Dashboard: React.FC = () => {
     }
 
     if (noteData.attachmentPaths && noteData.attachmentPaths.length > 0) {
-      await window.electronAPI.addAttachments(newNoteId, noteData.attachmentPaths);
+      const addedAttachments = await window.electronAPI.addAttachments(newNoteId, noteData.attachmentPaths);
+      console.log('[CreateNote] addAttachments returned:', addedAttachments.length, 'attachments');
+      await loadAttachments(newNoteId);
     }
 
     await loadNotes();

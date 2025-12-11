@@ -35,6 +35,7 @@ const NewNoteModal: React.FC<NewNoteModalProps> = ({
 
   const handleAddFiles = async () => {
     const filePaths = await window.electronAPI.pickAttachments();
+    console.log('[NewNoteModal] selected file paths:', filePaths);
     if (filePaths.length > 0) {
       setPendingFiles((prev) => {
         const combined = [...prev, ...filePaths];
@@ -49,6 +50,7 @@ const NewNoteModal: React.FC<NewNoteModalProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('[NewNoteModal] submitting with attachmentPaths:', pendingFiles);
     onCreate({ 
       title, 
       date, 
