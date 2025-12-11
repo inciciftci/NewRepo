@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import CountrySidebar from "./CountrySidebar";
 import NewNoteModal from "./NewNoteModal";
 import EditNoteModal from "./EditNoteModal";
@@ -74,6 +74,8 @@ const Dashboard: React.FC = () => {
     return saved ? Number(saved) : 320;
   });
   const [isResizing, setIsResizing] = useState(false);
+  const startXRef = useRef(0);
+  const startWidthRef = useRef(0);
 
   useEffect(() => {
     loadCountries();
@@ -256,13 +258,16 @@ const Dashboard: React.FC = () => {
   const handleMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
     setIsResizing(true);
+    startXRef.current = e.clientX;
+    startWidthRef.current = sidebarWidth;
   };
 
   useEffect(() => {
     if (!isResizing) return;
 
     const handleMouseMove = (e: MouseEvent) => {
-      const newWidth = e.clientX;
+      const delta = e.clientX - startXRef.current;
+      const newWidth = startWidthRef.current + delta;
       const minWidth = 240;
       const maxWidth = 500;
       const constrainedWidth = Math.min(Math.max(newWidth, minWidth), maxWidth);
@@ -274,32 +279,39 @@ const Dashboard: React.FC = () => {
       localStorage.setItem('sidebarWidth', sidebarWidth.toString());
     };
 
+    const handleBlur = () => {
+      setIsResizing(false);
+      localStorage.setItem('sidebarWidth', sidebarWidth.toString());
+    };
+
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('mouseup', handleMouseUp);
+    window.addEventListener('blur', handleBlur);
 
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener('blur', handleBlur);
     };
-  }, [isResizing, sidebarWidth]);
+  }, [isResizing]);
 
   return (
     <>
       {/* Background + centered app card */}
       <div className="h-screen w-screen bg-[#F3F7FF] flex items-center justify-center p-8">
         <div className="w-full h-full max-w-7xl max-h-[92vh] rounded-3xl bg-white border border-[#D5E4FF] shadow-[0_24px_70px_rgba(15,26,64,0.12)] flex overflow-hidden">
-          <div className="relative flex" style={{ width: sidebarWidth, minWidth: 240, maxWidth: 500 }}>
+          <div style={{ width: sidebarWidth, minWidth: 240, maxWidth: 500 }} className="shrink-0">
             <CountrySidebar
               countries={countries}
               selected={selectedCountryId}
               setSelected={setSelectedCountryId}
             />
-            <div
-              onMouseDown={handleMouseDown}
-              className="absolute right-0 top-0 bottom-0 w-1.5 cursor-col-resize hover:bg-[#3A6BBF]/30 transition-colors select-none"
-              style={{ zIndex: 10 }}
-            />
           </div>
+          
+          <div
+            onMouseDown={handleMouseDown}
+            className="w-1.5 shrink-0 cursor-col-resize hover:bg-[#3A6BBF]/30 transition-colors select-none bg-[#D5E4FF]/50"
+          />
 
           <main className="flex-1 bg-[#F8FAFF] px-8 py-7 flex flex-col min-w-0">
             <header className="flex items-start justify-between gap-6 mb-6">
