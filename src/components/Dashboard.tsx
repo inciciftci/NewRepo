@@ -358,7 +358,7 @@ const Dashboard: React.FC = () => {
           
           <div
             onMouseDown={handleMouseDown}
-            className="w-1.5 shrink-0 cursor-col-resize hover:bg-[#3A6BBF]/30 transition-colors select-none bg-[#D5E4FF]/50"
+            className="w-1.5 shrink-0 cursor-col-resize hover:bg-[#3A6BBF]/30 transition-colors select-none bg-transparent"
           />
 
           <main className="flex-1 bg-[#F8FAFF] px-8 py-7 flex flex-col min-w-0">
@@ -522,7 +522,7 @@ const Dashboard: React.FC = () => {
               {isDetailVisible && selectedNote && (
                 <div
                   onMouseDown={handleMouseDownNotesList}
-                  className="w-1.5 shrink-0 cursor-col-resize hover:bg-[#3A6BBF]/30 transition-colors select-none bg-[#D5E4FF]/50"
+                  className="w-1.5 shrink-0 cursor-col-resize hover:bg-[#3A6BBF]/30 transition-colors select-none bg-transparent"
                 />
               )}
 
