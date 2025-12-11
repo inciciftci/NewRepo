@@ -5,6 +5,7 @@ import EditNoteModal from "./EditNoteModal";
 import FullNoteModal, { FullNote } from "./FullNoteModal";
 import { X, Maximize2, Edit2, Trash2 } from "lucide-react";
 import type { Country, Note, Link } from "../types";
+import { displayCountryName } from "../utils/country-tr";
 
 type CountryWithCount = Country & { count: number };
 
@@ -113,32 +114,38 @@ const Dashboard: React.FC = () => {
   }, [selectedNote]);
 
   const selectedCountry = countries.find((c) => c.id === selectedCountryId);
-  const selectedCountryName = selectedCountry?.name ?? "Bir ülke seçin";
+  const selectedCountryName = selectedCountry 
+    ? displayCountryName(selectedCountry.code, selectedCountry.name)
+    : "Bir ülke seçin";
 
   const getFilteredNotesByDate = (allNotes: Note[]) => {
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    const todayStr = `${yyyy}-${mm}-${dd}`;
 
     switch (dateFilter) {
       case "today": {
-        const todayStr = today.toISOString().split("T")[0];
         return allNotes.filter((note) => note.date === todayStr);
       }
       case "week": {
         const weekAgo = new Date(today);
         weekAgo.setDate(weekAgo.getDate() - 7);
-        return allNotes.filter((note) => {
-          const noteDate = new Date(note.date);
-          return noteDate >= weekAgo && noteDate <= today;
-        });
+        const weekYyyy = weekAgo.getFullYear();
+        const weekMm = String(weekAgo.getMonth() + 1).padStart(2, '0');
+        const weekDd = String(weekAgo.getDate()).padStart(2, '0');
+        const weekAgoStr = `${weekYyyy}-${weekMm}-${weekDd}`;
+        return allNotes.filter((note) => note.date >= weekAgoStr && note.date <= todayStr);
       }
       case "month": {
         const monthAgo = new Date(today);
         monthAgo.setMonth(monthAgo.getMonth() - 1);
-        return allNotes.filter((note) => {
-          const noteDate = new Date(note.date);
-          return noteDate >= monthAgo && noteDate <= today;
-        });
+        const monthYyyy = monthAgo.getFullYear();
+        const monthMm = String(monthAgo.getMonth() + 1).padStart(2, '0');
+        const monthDd = String(monthAgo.getDate()).padStart(2, '0');
+        const monthAgoStr = `${monthYyyy}-${monthMm}-${monthDd}`;
+        return allNotes.filter((note) => note.date >= monthAgoStr && note.date <= todayStr);
       }
       default:
         return allNotes;
@@ -531,8 +538,11 @@ const Dashboard: React.FC = () => {
           isOpen={isEditModalOpen}
           note={selectedNote}
           countryName={selectedCountryName}
+          links={links}
           onClose={() => setIsEditModalOpen(false)}
           onUpdate={handleUpdateNote}
+          onAddLink={handleAddLink}
+          onDeleteLink={handleDeleteLink}
         />
       )}
 

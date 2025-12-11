@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { Trash2 } from "lucide-react";
+import type { Link } from "../types";
 
 type EditNoteModalProps = {
   isOpen: boolean;
@@ -9,6 +11,7 @@ type EditNoteModalProps = {
     content: string;
   } | null;
   countryName: string;
+  links: Link[];
   onClose: () => void;
   onUpdate: (noteData: {
     id: number;
@@ -16,18 +19,25 @@ type EditNoteModalProps = {
     date: string;
     content: string;
   }) => void;
+  onAddLink: (url: string, title: string) => void;
+  onDeleteLink: (linkId: number) => void;
 };
 
 const EditNoteModal: React.FC<EditNoteModalProps> = ({
   isOpen,
   note,
   countryName,
+  links,
   onClose,
   onUpdate,
+  onAddLink,
+  onDeleteLink,
 }) => {
   const [title, setTitle] = useState("");
   const [date, setDate] = useState("");
   const [content, setContent] = useState("");
+  const [linkUrl, setLinkUrl] = useState("");
+  const [linkTitle, setLinkTitle] = useState("");
 
   useEffect(() => {
     if (note) {
@@ -122,6 +132,84 @@ const EditNoteModal: React.FC<EditNoteModalProps> = ({
               value={content}
               onChange={(e) => setContent(e.target.value)}
             />
+          </div>
+
+          <div className="space-y-3 pt-3 border-t border-[#E0E7FF]">
+            <div className="flex items-center justify-between">
+              <p className="text-[11px] font-semibold tracking-[0.18em] text-[#0F1A40]/65 uppercase">
+                Linkler
+              </p>
+            </div>
+
+            {links.length > 0 && (
+              <div className="space-y-2">
+                {links.map((link) => (
+                  <div
+                    key={link.id}
+                    className="flex items-center gap-2 p-2 rounded-lg bg-[#F8FAFF] border border-[#E0E7FF]"
+                  >
+                    <a
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        const url = link.url.startsWith('http') 
+                          ? link.url 
+                          : `https://${link.url}`;
+                        window.open(url, '_blank', 'noopener,noreferrer');
+                      }}
+                      className="flex-1 text-xs text-[#3A6BBF] hover:underline truncate"
+                    >
+                      {link.title}
+                    </a>
+                    <button
+                      type="button"
+                      onClick={() => onDeleteLink(link.id)}
+                      className="text-red-500 hover:text-red-700"
+                      title="Linki sil"
+                    >
+                      <Trash2 size={12} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <p className="text-xs font-medium text-[#0F1A40]/85">Yeni Link Ekle</p>
+              <div className="flex gap-2">
+                <input
+                  type="url"
+                  className="flex-1 rounded-xl border border-[#C7D6FF] bg-[#F8FAFF] px-3 py-2 text-sm text-[#0F1A40] placeholder:text-[#0F1A40]/55 focus:outline-none focus:ring-2 focus:ring-[#AFC6FF]"
+                  placeholder="https://ornek.com/..."
+                  value={linkUrl}
+                  onChange={(e) => setLinkUrl(e.target.value)}
+                />
+                <input
+                  className="flex-1 rounded-xl border border-[#C7D6FF] bg-[#F8FAFF] px-3 py-2 text-sm text-[#0F1A40] placeholder:text-[#0F1A40]/55 focus:outline-none focus:ring-2 focus:ring-[#AFC6FF]"
+                  placeholder="Link başlığı"
+                  value={linkTitle}
+                  onChange={(e) => setLinkTitle(e.target.value)}
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (linkUrl.trim()) {
+                      const url = linkUrl.startsWith('http') 
+                        ? linkUrl 
+                        : `https://${linkUrl}`;
+                      onAddLink(url, linkTitle.trim() || linkUrl.trim());
+                      setLinkUrl("");
+                      setLinkTitle("");
+                    }
+                  }}
+                  className="px-4 py-2 rounded-xl bg-[#3A6BBF] text-white text-xs font-medium hover:brightness-110 transition"
+                >
+                  Ekle
+                </button>
+              </div>
+            </div>
           </div>
 
           <div className="mt-2 flex items-center justify-between">

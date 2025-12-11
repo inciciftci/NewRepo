@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import type { Country } from "../types";
+import { displayCountryName } from "../utils/country-tr";
 
 interface CountryWithCount extends Country {
   count: number;
@@ -14,9 +15,10 @@ interface Props {
 const CountrySidebar: React.FC<Props> = ({ countries, selected, setSelected }) => {
   const [search, setSearch] = useState("");
 
-  const filteredCountries = countries.filter((c) =>
-    c.name.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredCountries = countries.filter((c) => {
+    const displayName = displayCountryName(c.code, c.name);
+    return displayName.toLowerCase().includes(search.toLowerCase());
+  });
 
   return (
     <aside className="w-80 h-full bg-[#F6FAFF] border-r border-[#DCEAFF] flex flex-col px-6 py-6">
@@ -62,7 +64,7 @@ const CountrySidebar: React.FC<Props> = ({ countries, selected, setSelected }) =
             `}
           >
             <span className="text-[#0F1A40] font-medium text-[15px]">
-              {c.name}
+              {displayCountryName(c.code, c.name)}
             </span>
 
             <span
