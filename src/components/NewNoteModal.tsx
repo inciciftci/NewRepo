@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Paperclip, X } from "lucide-react";
+import RichTextEditor from "./RichTextEditor";
 
 type NewNoteModalProps = {
   isOpen: boolean;
@@ -154,13 +155,12 @@ const NewNoteModal: React.FC<NewNoteModalProps> = ({
 
           <div>
             <label className="block text-xs font-medium text-[#0F1A40]/85 mb-1">
-              Kısa özet
+              Not icerigi (gorseller ekleyebilirsiniz)
             </label>
-            <textarea
-              className="w-full min-h-[90px] rounded-xl border border-[#C7D6FF] bg-[#F8FAFF] px-3 py-2.5 text-sm text-[#0F1A40] placeholder:text-[#0F1A40]/55 focus:outline-none focus:ring-2 focus:ring-[#AFC6FF]"
-              placeholder="Haberin/olayın özünü birkaç cümleyle özetle..."
-              value={summary}
-              onChange={(e) => setSummary(e.target.value)}
+            <RichTextEditor
+              content={summary}
+              onChange={setSummary}
+              placeholder="Haberin/olayin ozunu yazin, gorseller ekleyebilirsiniz..."
             />
           </div>
 

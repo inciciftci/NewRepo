@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Trash2, Paperclip, FileText } from "lucide-react";
 import type { Link, Attachment } from "../types";
+import RichTextEditor from "./RichTextEditor";
 
 type EditNoteModalProps = {
   isOpen: boolean;
@@ -158,13 +159,12 @@ const EditNoteModal: React.FC<EditNoteModalProps> = ({
 
           <div>
             <label className="block text-xs font-medium text-[#0F1A40]/85 mb-1">
-              İçerik
+              Icerik (gorseller ekleyebilirsiniz)
             </label>
-            <textarea
-              className="w-full min-h-[200px] rounded-xl border border-[#C7D6FF] bg-[#F8FAFF] px-3 py-2.5 text-sm text-[#0F1A40] placeholder:text-[#0F1A40]/55 focus:outline-none focus:ring-2 focus:ring-[#AFC6FF]"
-              placeholder="Not içeriğini buraya yazın..."
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
+            <RichTextEditor
+              content={content}
+              onChange={setContent}
+              placeholder="Not icerigini buraya yazin, gorseller ekleyebilirsiniz..."
             />
           </div>
 

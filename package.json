@@ -77,6 +77,7 @@
   },
   "dependencies": {
     "@tiptap/extension-font-family": "^3.10.7",
+    "@tiptap/extension-image": "^3.13.0",
     "@tiptap/extension-text-style": "^3.10.7",
     "@tiptap/extension-underline": "^3.10.7",
     "@tiptap/react": "^3.10.7",

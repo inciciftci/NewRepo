@@ -82,10 +82,12 @@ const FullNoteModal: React.FC<FullNoteModalProps> = ({ isOpen, onClose, note }) 
 
           <div className="flex-1 flex flex-col gap-5 overflow-hidden">
             <div className="flex-1 rounded-2xl border border-[#E0E7FF] bg-[#F8FAFF] px-5 py-4 overflow-y-auto">
-              <p className="text-sm leading-relaxed text-[#0F1A40]/80 whitespace-pre-line break-words">
-                {note.content ??
-                  "Bu alan, haber metninin veya kendi analizinizin daha uzun hâlini yazmanız için tasarlandı. Önemli tarihleri, aktörleri ve olayların etkilerini paragraflar hâlinde detaylandırabilirsiniz."}
-              </p>
+              <div 
+                className="text-sm leading-relaxed text-[#0F1A40]/80 prose prose-sm max-w-none"
+                dangerouslySetInnerHTML={{ 
+                  __html: note.content || "Bu alan, haber metninin veya kendi analizinizin daha uzun halini yazmaniz icin tasarlandi. Onemli tarihleri, aktorleri ve olaylarin etkilerini paragraflar halinde detaylandirabilirsiniz."
+                }}
+              />
             </div>
 
             <div className="space-y-2">
