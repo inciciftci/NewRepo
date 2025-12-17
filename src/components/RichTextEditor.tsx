@@ -65,7 +65,6 @@ const ResizableImageComponent: React.FC<NodeViewProps> = ({
     };
 
     const handleMouseUp = () => {
-      setIsResizing(false);
       document.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseup", handleMouseUp);
     };
