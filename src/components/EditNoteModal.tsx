@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Trash2 } from "lucide-react";
-import type { Link } from "../types";
+import { Trash2, Paperclip, FileText } from "lucide-react";
+import type { Link, Attachment } from "../types";
 
 type EditNoteModalProps = {
   isOpen: boolean;
@@ -12,6 +12,7 @@ type EditNoteModalProps = {
   } | null;
   countryName: string;
   links: Link[];
+  attachments: Attachment[];
   onClose: () => void;
   onUpdate: (noteData: {
     id: number;
@@ -21,6 +22,9 @@ type EditNoteModalProps = {
   }) => void;
   onAddLink: (url: string, title: string) => void;
   onDeleteLink: (linkId: number) => void;
+  onAddAttachments: (filePaths: string[]) => void;
+  onDeleteAttachment: (attachmentId: number) => void;
+  onOpenAttachment: (filepath: string) => void;
 };
 
 const EditNoteModal: React.FC<EditNoteModalProps> = ({
@@ -28,10 +32,14 @@ const EditNoteModal: React.FC<EditNoteModalProps> = ({
   note,
   countryName,
   links,
+  attachments,
   onClose,
   onUpdate,
   onAddLink,
   onDeleteLink,
+  onAddAttachments,
+  onDeleteAttachment,
+  onOpenAttachment,
 }) => {
   const [title, setTitle] = useState("");
   const [date, setDate] = useState("");
@@ -52,6 +60,32 @@ const EditNoteModal: React.FC<EditNoteModalProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onUpdate({ id: note.id, title, date, content });
+  };
+
+  const handleAddFiles = async () => {
+    try {
+      if (!window.electronAPI || !window.electronAPI.pickAttachments) {
+        console.error('[EditNoteModal] electronAPI.pickAttachments is not available');
+        return;
+      }
+      const filePaths = await window.electronAPI.pickAttachments();
+      console.log('[EditNoteModal] selected file paths:', filePaths);
+      if (filePaths && filePaths.length > 0) {
+        onAddAttachments(filePaths);
+      }
+    } catch (error) {
+      console.error('[EditNoteModal] Error picking attachments:', error);
+    }
+  };
+
+  const getFileIcon = (mimeType: string | null) => {
+    if (mimeType?.startsWith('image/')) {
+      return <FileText size={14} className="text-blue-500" />;
+    }
+    if (mimeType === 'application/pdf') {
+      return <FileText size={14} className="text-red-500" />;
+    }
+    return <FileText size={14} className="text-gray-500" />;
   };
 
   return (
@@ -210,6 +244,60 @@ const EditNoteModal: React.FC<EditNoteModalProps> = ({
                 </button>
               </div>
             </div>
+          </div>
+
+          <div className="space-y-3 pt-3 border-t border-[#E0E7FF]">
+            <div className="flex items-center justify-between">
+              <p className="text-[11px] font-semibold tracking-[0.18em] text-[#0F1A40]/65 uppercase">
+                Dosya Eklentileri
+              </p>
+              <button
+                type="button"
+                onClick={handleAddFiles}
+                className="flex items-center gap-1 text-xs text-[#3A6BBF] hover:underline"
+              >
+                <Paperclip size={14} />
+                Dosya Ekle
+              </button>
+            </div>
+
+            {attachments.length > 0 && (
+              <div className="space-y-2">
+                {attachments.map((attachment) => (
+                  <div
+                    key={attachment.id}
+                    className="flex items-center gap-2 p-2 rounded-lg bg-[#F8FAFF] border border-[#E0E7FF] min-w-0"
+                  >
+                    {getFileIcon(attachment.mime_type)}
+                    <button
+                      type="button"
+                      onClick={() => onOpenAttachment(attachment.filepath)}
+                      className="flex-1 text-xs text-[#3A6BBF] hover:underline break-words min-w-0 text-left"
+                      title="Dosyayı aç"
+                    >
+                      {attachment.original_name || attachment.filename}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onDeleteAttachment(attachment.id)}
+                      className="text-red-500 hover:text-red-700 shrink-0"
+                      title="Eklentiyi sil"
+                    >
+                      <Trash2 size={12} />
+                    </button>
+                  </div>
+                ))}
+                <p className="text-[10px] text-[#0F1A40]/60">
+                  {attachments.length} dosya ekli
+                </p>
+              </div>
+            )}
+
+            {attachments.length === 0 && (
+              <p className="text-xs text-[#0F1A40]/50 italic">
+                Henüz dosya eklenmemiş
+              </p>
+            )}
           </div>
 
           <div className="mt-2 flex items-center justify-between">

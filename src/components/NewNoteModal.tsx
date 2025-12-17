@@ -34,13 +34,21 @@ const NewNoteModal: React.FC<NewNoteModalProps> = ({
   if (!isOpen) return null;
 
   const handleAddFiles = async () => {
-    const filePaths = await window.electronAPI.pickAttachments();
-    console.log('[NewNoteModal] selected file paths:', filePaths);
-    if (filePaths.length > 0) {
-      setPendingFiles((prev) => {
-        const combined = [...prev, ...filePaths];
-        return Array.from(new Set(combined));
-      });
+    try {
+      if (!window.electronAPI || !window.electronAPI.pickAttachments) {
+        console.error('[NewNoteModal] electronAPI.pickAttachments is not available');
+        return;
+      }
+      const filePaths = await window.electronAPI.pickAttachments();
+      console.log('[NewNoteModal] selected file paths:', filePaths);
+      if (filePaths && filePaths.length > 0) {
+        setPendingFiles((prev) => {
+          const combined = [...prev, ...filePaths];
+          return Array.from(new Set(combined));
+        });
+      }
+    } catch (error) {
+      console.error('[NewNoteModal] Error picking attachments:', error);
     }
   };
 

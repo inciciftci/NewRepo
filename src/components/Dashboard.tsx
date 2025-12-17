@@ -793,10 +793,21 @@ const Dashboard: React.FC = () => {
           note={selectedNote}
           countryName={selectedCountryName}
           links={links}
+          attachments={attachments}
           onClose={() => setIsEditModalOpen(false)}
           onUpdate={handleUpdateNote}
           onAddLink={handleAddLink}
           onDeleteLink={handleDeleteLink}
+          onAddAttachments={async (filePaths: string[]) => {
+            await window.electronAPI.addAttachments(selectedNote.id, filePaths);
+            await loadAttachments(selectedNote.id);
+          }}
+          onDeleteAttachment={async (attachmentId: number) => {
+            if (!window.confirm("Bu eklentiyi silmek istediğinizden emin misiniz?")) return;
+            await window.electronAPI.deleteAttachment(attachmentId);
+            await loadAttachments(selectedNote.id);
+          }}
+          onOpenAttachment={handleOpenAttachment}
         />
       )}
 
