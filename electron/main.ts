@@ -86,11 +86,6 @@ ipcMain.handle('update-note', async (_event, id: number, title: string, date: st
   return true;
 });
 
-ipcMain.handle('delete-note', async (_event, id: number) => {
-  queries.deleteNote(id);
-  return true;
-});
-
 ipcMain.handle('get-images-by-note-id', async (_event, noteId: number) => {
   return queries.getImagesByNoteId(noteId);
 });
