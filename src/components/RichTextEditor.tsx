@@ -1,8 +1,10 @@
-import React, { useCallback, useRef } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import { useEditor, EditorContent, NodeViewWrapper, NodeViewProps } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
 import Underline from "@tiptap/extension-underline";
+import TextStyle from "@tiptap/extension-text-style";
+import { Color } from "@tiptap/extension-color";
 import { Node, mergeAttributes } from "@tiptap/core";
 import { ReactNodeViewRenderer } from "@tiptap/react";
 import {
@@ -17,6 +19,9 @@ import {
   AlignRight,
   Trash2,
   GripVertical,
+  Maximize2,
+  Minimize2,
+  Palette,
 } from "lucide-react";
 
 type RichTextEditorProps = {
@@ -24,7 +29,19 @@ type RichTextEditorProps = {
   onChange: (content: string) => void;
   placeholder?: string;
   onImageAdd?: (file: File) => Promise<string>;
+  allowFullscreen?: boolean;
 };
+
+const TEXT_COLORS = [
+  { name: "Siyah", color: "#0F1A40" },
+  { name: "Kirmizi", color: "#DC2626" },
+  { name: "Mavi", color: "#2563EB" },
+  { name: "Yesil", color: "#16A34A" },
+  { name: "Turuncu", color: "#EA580C" },
+  { name: "Mor", color: "#9333EA" },
+  { name: "Pembe", color: "#DB2777" },
+  { name: "Gri", color: "#6B7280" },
+];
 
 const ResizableImageComponent: React.FC<NodeViewProps> = ({
   node,
@@ -203,8 +220,11 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
   onChange,
   placeholder = "Not iceriginizi buraya yazin...",
   onImageAdd,
+  allowFullscreen = true,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [showColorPicker, setShowColorPicker] = useState(false);
 
   const editor = useEditor({
     extensions: [
@@ -214,6 +234,8 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
         },
       }),
       Underline,
+      TextStyle,
+      Color,
       ResizableImage,
       Image.configure({
         inline: false,
@@ -289,8 +311,12 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
     return null;
   }
 
+  const editorContainerClass = isFullscreen
+    ? "fixed inset-0 z-50 bg-white flex flex-col"
+    : "rich-text-editor rounded-xl border border-[#C7D6FF] bg-[#F8FAFF] overflow-hidden";
+
   return (
-    <div className="rich-text-editor rounded-xl border border-[#C7D6FF] bg-[#F8FAFF] overflow-hidden">
+    <div className={editorContainerClass}>
       <div className="flex flex-wrap items-center gap-1 px-3 py-2 border-b border-[#E0E7FF] bg-[#F3F7FF]">
         <button
           type="button"
@@ -322,6 +348,49 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
         >
           <UnderlineIcon size={16} />
         </button>
+
+        <div className="w-px h-5 bg-[#D0DFFF] mx-1" />
+
+        {/* Color Picker */}
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => setShowColorPicker(!showColorPicker)}
+            className={`p-1.5 rounded hover:bg-[#E0E7FF] transition flex items-center gap-1 ${
+              showColorPicker ? "bg-[#D0DFFF] text-[#3A6BBF]" : ""
+            }`}
+            title="Yazi rengi"
+          >
+            <Palette size={16} />
+          </button>
+          {showColorPicker && (
+            <div className="absolute top-full left-0 mt-1 p-2 bg-white rounded-lg shadow-lg border border-[#E0E7FF] z-10 flex flex-wrap gap-1 w-32">
+              {TEXT_COLORS.map((colorOption) => (
+                <button
+                  key={colorOption.color}
+                  type="button"
+                  onClick={() => {
+                    editor.chain().focus().setColor(colorOption.color).run();
+                    setShowColorPicker(false);
+                  }}
+                  className="w-6 h-6 rounded-full border-2 border-white hover:scale-110 transition shadow-sm"
+                  style={{ backgroundColor: colorOption.color }}
+                  title={colorOption.name}
+                />
+              ))}
+              <button
+                type="button"
+                onClick={() => {
+                  editor.chain().focus().unsetColor().run();
+                  setShowColorPicker(false);
+                }}
+                className="w-full mt-1 text-xs text-[#0F1A40]/70 hover:text-[#0F1A40] py-1"
+              >
+                Varsayilan
+              </button>
+            </div>
+          )}
+        </div>
 
         <div className="w-px h-5 bg-[#D0DFFF] mx-1" />
 
@@ -365,11 +434,26 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           onChange={handleFileChange}
           className="hidden"
         />
+
+        {/* Spacer to push fullscreen button to the right */}
+        <div className="flex-1" />
+
+        {/* Fullscreen Toggle */}
+        {allowFullscreen && (
+          <button
+            type="button"
+            onClick={() => setIsFullscreen(!isFullscreen)}
+            className="p-1.5 rounded hover:bg-[#E0E7FF] transition"
+            title={isFullscreen ? "Tam ekrandan cik" : "Tam ekran"}
+          >
+            {isFullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+          </button>
+        )}
       </div>
 
       <EditorContent
         editor={editor}
-        className="px-3 py-2.5 text-sm min-h-[200px]"
+        className={`px-3 py-2.5 text-sm ${isFullscreen ? "flex-1 overflow-auto" : "min-h-[200px]"}`}
       />
     </div>
   );

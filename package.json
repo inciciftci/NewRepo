@@ -3,20 +3,20 @@
   "version": "1.0.0",
   "description": "Offline note-taking application for world countries",
   "main": "dist/electron/main.js",
-    "scripts": {
-      "dev": "concurrently \"npm run dev:react\" \"npm run dev:electron\"",
-      "dev:react": "vite",
-      "dev:electron": "wait-on http://localhost:5173 && cross-env NODE_ENV=development electron .",
-      "build": "npm run build:electron && npm run build:react && electron-builder",
-      "build:electron": "tsc --project tsconfig.node.json",
-      "build:react": "vite build",
-      "build:win": "npm run build -- --win",
-      "build:linux": "npm run build -- --linux",
-      "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-      "preview": "vite preview",
-      "postinstall": "electron-builder install-app-deps",
-      "rebuild:native": "electron-builder install-app-deps"
-    },
+  "scripts": {
+    "dev": "concurrently \"npm run dev:react\" \"npm run dev:electron\"",
+    "dev:react": "vite",
+    "dev:electron": "wait-on http://localhost:5173 && cross-env NODE_ENV=development electron .",
+    "build": "npm run build:electron && npm run build:react && electron-builder",
+    "build:electron": "tsc --project tsconfig.node.json",
+    "build:react": "vite build",
+    "build:win": "npm run build -- --win",
+    "build:linux": "npm run build -- --linux",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview",
+    "postinstall": "electron-builder install-app-deps",
+    "rebuild:native": "electron-builder install-app-deps"
+  },
   "keywords": [
     "electron",
     "react",
@@ -78,6 +78,7 @@
     "wait-on": "^9.0.3"
   },
   "dependencies": {
+    "@tiptap/extension-color": "^3.13.0",
     "@tiptap/extension-font-family": "^3.10.7",
     "@tiptap/extension-image": "^3.13.0",
     "@tiptap/extension-text-style": "^3.10.7",
