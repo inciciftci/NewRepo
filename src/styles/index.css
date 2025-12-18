@@ -24,10 +24,35 @@ code {
   margin: 0.5rem 0;
 }
 
-.ProseMirror ul,
+.ProseMirror ul {
+  padding-left: 1.5rem;
+  margin: 0.5rem 0;
+  list-style-type: disc;
+}
+
+.ProseMirror ul li {
+  display: list-item;
+  margin: 0.25rem 0;
+}
+
+.ProseMirror ul li::marker {
+  color: #3A6BBF;
+}
+
 .ProseMirror ol {
   padding-left: 1.5rem;
   margin: 0.5rem 0;
+  list-style-type: decimal;
+}
+
+.ProseMirror ol li {
+  display: list-item;
+  margin: 0.25rem 0;
+}
+
+.ProseMirror ol li::marker {
+  color: #3A6BBF;
+  font-weight: 600;
 }
 
 .ProseMirror h1,
@@ -146,4 +171,45 @@ code {
   content: "";
   display: table;
   clear: both;
+}
+
+/* Drag handle for images */
+.image-resizer .drag-handle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 32px;
+  height: 32px;
+  background: rgba(58, 107, 191, 0.9);
+  border-radius: 50%;
+  cursor: grab;
+  opacity: 0;
+  transition: opacity 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 14px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.image-resizer:hover .drag-handle,
+.image-resizer.selected .drag-handle {
+  opacity: 1;
+}
+
+.image-resizer .drag-handle:active {
+  cursor: grabbing;
+  background: rgba(58, 107, 191, 1);
+}
+
+/* Image being dragged */
+.image-resizer.dragging {
+  opacity: 0.5;
+}
+
+.ProseMirror-selectednode .image-resizer {
+  outline: 3px solid #3A6BBF;
+  outline-offset: 2px;
 }

@@ -16,6 +16,7 @@ import {
   AlignCenter,
   AlignRight,
   Trash2,
+  GripVertical,
 } from "lucide-react";
 
 type RichTextEditorProps = {
@@ -95,66 +96,75 @@ const ResizableImageComponent: React.FC<NodeViewProps> = ({
         style={{ width: "100%", height: "auto" }}
         draggable={false}
       />
-      {selected && (
-        <>
-          <div
-            className="resize-handle top-left"
-            onMouseDown={(e) => handleMouseDown(e, "top-left")}
-          />
-          <div
-            className="resize-handle top-right"
-            onMouseDown={(e) => handleMouseDown(e, "top-right")}
-          />
-          <div
-            className="resize-handle bottom-left"
-            onMouseDown={(e) => handleMouseDown(e, "bottom-left")}
-          />
-          <div
-            className="resize-handle bottom-right"
-            onMouseDown={(e) => handleMouseDown(e, "bottom-right")}
-          />
-          <div className="absolute top-2 right-2 flex gap-1">
-            <button
-              type="button"
-              onClick={() => updateAttributes({ alignment: "left" })}
-              className={`p-1 rounded ${
-                alignment === "left" ? "bg-blue-500 text-white" : "bg-white/80"
-              }`}
-              title="Sola hizala"
+            {/* Drag handle - always visible on hover */}
+            <div
+              className="drag-handle"
+              draggable
+              data-drag-handle
+              title="Tasimak icin surukleyin"
             >
-              <AlignLeft size={14} />
-            </button>
-            <button
-              type="button"
-              onClick={() => updateAttributes({ alignment: "center" })}
-              className={`p-1 rounded ${
-                alignment === "center" ? "bg-blue-500 text-white" : "bg-white/80"
-              }`}
-              title="Ortala"
-            >
-              <AlignCenter size={14} />
-            </button>
-            <button
-              type="button"
-              onClick={() => updateAttributes({ alignment: "right" })}
-              className={`p-1 rounded ${
-                alignment === "right" ? "bg-blue-500 text-white" : "bg-white/80"
-              }`}
-              title="Saga hizala"
-            >
-              <AlignRight size={14} />
-            </button>
-            <button
-              type="button"
-              onClick={() => deleteNode()}
-              className="p-1 rounded bg-red-500 text-white"
-              title="Sil"
-            >
-              <Trash2 size={14} />
-            </button>
-          </div>
-        </>
-      )}
+              <GripVertical size={16} />
+            </div>
+            {selected && (
+              <>
+                <div
+                  className="resize-handle top-left"
+                  onMouseDown={(e) => handleMouseDown(e, "top-left")}
+                />
+                <div
+                  className="resize-handle top-right"
+                  onMouseDown={(e) => handleMouseDown(e, "top-right")}
+                />
+                <div
+                  className="resize-handle bottom-left"
+                  onMouseDown={(e) => handleMouseDown(e, "bottom-left")}
+                />
+                <div
+                  className="resize-handle bottom-right"
+                  onMouseDown={(e) => handleMouseDown(e, "bottom-right")}
+                />
+                <div className="absolute top-2 right-2 flex gap-1">
+                  <button
+                    type="button"
+                    onClick={() => updateAttributes({ alignment: "left" })}
+                    className={`p-1 rounded ${
+                      alignment === "left" ? "bg-blue-500 text-white" : "bg-white/80"
+                    }`}
+                    title="Sola hizala"
+                  >
+                    <AlignLeft size={14} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => updateAttributes({ alignment: "center" })}
+                    className={`p-1 rounded ${
+                      alignment === "center" ? "bg-blue-500 text-white" : "bg-white/80"
+                    }`}
+                    title="Ortala"
+                  >
+                    <AlignCenter size={14} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => updateAttributes({ alignment: "right" })}
+                    className={`p-1 rounded ${
+                      alignment === "right" ? "bg-blue-500 text-white" : "bg-white/80"
+                    }`}
+                    title="Saga hizala"
+                  >
+                    <AlignRight size={14} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => deleteNode()}
+                    className="p-1 rounded bg-red-500 text-white"
+                    title="Sil"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              </>
+            )}
     </NodeViewWrapper>
   );
 };
