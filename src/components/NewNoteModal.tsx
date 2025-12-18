@@ -88,6 +88,8 @@ const NewNoteModal: React.FC<NewNoteModalProps> = ({
       <div
         className="
           w-full max-w-xl
+          max-h-[85vh]
+          overflow-y-auto
           rounded-3xl
           bg-white
           border border-[#D5E4FF]

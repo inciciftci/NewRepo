@@ -454,7 +454,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
 
       <EditorContent
         editor={editor}
-        className={`px-3 py-2.5 text-sm ${isFullscreen ? "flex-1 overflow-auto" : "min-h-[200px]"}`}
+        className={`px-3 py-2.5 text-sm ${isFullscreen ? "flex-1 overflow-auto" : "min-h-[120px] max-h-[250px] overflow-auto"}`}
       />
     </div>
   );
