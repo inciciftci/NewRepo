@@ -1,7 +1,6 @@
 import React, { useCallback, useRef, useState } from "react";
 import { useEditor, EditorContent, NodeViewWrapper, NodeViewProps } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import Image from "@tiptap/extension-image";
 import Underline from "@tiptap/extension-underline";
 import TextStyle from "@tiptap/extension-text-style";
 import { Color } from "@tiptap/extension-color";
@@ -105,19 +104,20 @@ const ResizableImageComponent: React.FC<NodeViewProps> = ({
     <NodeViewWrapper
       className={`image-resizer ${selected ? "selected" : ""} ${alignmentClass}`}
       style={{ width: width === "auto" ? "auto" : `${width}px` }}
+      contentEditable={false}
+      draggable
+      data-drag-handle
     >
       <img
         ref={imageRef}
         src={node.attrs.src}
         alt={node.attrs.alt || ""}
-        style={{ width: "100%", height: "auto" }}
+        style={{ width: "100%", height: "auto", cursor: "pointer" }}
         draggable={false}
       />
-            {/* Drag handle - always visible on hover */}
+            {/* Drag handle - visible on hover for repositioning */}
             <div
               className="drag-handle"
-              draggable
-              data-drag-handle
               title="Tasimak icin surukleyin"
             >
               <GripVertical size={16} />
@@ -191,6 +191,7 @@ const ResizableImage = Node.create({
   group: "block",
   atom: true,
   draggable: true,
+  selectable: true,
 
   addAttributes() {
     return {
@@ -199,15 +200,19 @@ const ResizableImage = Node.create({
       title: { default: null },
       width: { default: null },
       alignment: { default: "center" },
+      "data-resizable": { default: "true" },
     };
   },
 
   parseHTML() {
-    return [{ tag: "img[src]" }];
+    return [
+      { tag: 'img[data-resizable="true"]' },
+      { tag: "img[src]" },
+    ];
   },
 
   renderHTML({ HTMLAttributes }) {
-    return ["img", mergeAttributes(HTMLAttributes)];
+    return ["img", mergeAttributes(HTMLAttributes, { "data-resizable": "true" })];
   },
 
   addNodeView() {
@@ -237,10 +242,6 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
       TextStyle,
       Color,
       ResizableImage,
-      Image.configure({
-        inline: false,
-        allowBase64: true,
-      }),
     ],
     content: content || "",
     onUpdate: ({ editor }) => {
