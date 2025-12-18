@@ -389,9 +389,10 @@ const Dashboard: React.FC = () => {
   return (
     <>
       {/* Background + centered app card */}
-      <div className="h-screen w-screen bg-[#F3F7FF] flex items-center justify-center p-8">
-        <div className="w-full h-full max-w-7xl max-h-[92vh] rounded-3xl bg-white border border-[#D5E4FF] shadow-[0_24px_70px_rgba(15,26,64,0.12)] flex overflow-hidden">
-          <div style={{ width: sidebarWidth, minWidth: 240, maxWidth: 500 }} className="shrink-0 relative">
+      <div className="h-screen w-screen bg-[#F3F7FF] flex items-center justify-center p-2 sm:p-4 lg:p-8">
+        <div className="w-full h-full max-w-7xl max-h-[98vh] sm:max-h-[95vh] lg:max-h-[92vh] rounded-2xl sm:rounded-3xl bg-white border border-[#D5E4FF] shadow-[0_24px_70px_rgba(15,26,64,0.12)] flex flex-col lg:flex-row overflow-hidden">
+          {/* Sidebar - hidden on mobile, shown on lg+ */}
+          <div style={{ width: sidebarWidth, minWidth: 240, maxWidth: 500 }} className="hidden lg:block shrink-0 relative">
             <CountrySidebar
               countries={countries}
               selected={selectedCountryId}
@@ -403,16 +404,25 @@ const Dashboard: React.FC = () => {
             />
           </div>
 
-          <main className="flex-1 bg-[#F8FAFF] px-8 py-7 flex flex-col min-w-0">
-            <header className="flex items-start justify-between gap-6 mb-6">
-              <div>
-                <p className="text-xs uppercase tracking-[0.25em] text-[#0F1A40]/55">
+          {/* Mobile sidebar - shown only on mobile/tablet */}
+          <div className="lg:hidden shrink-0 border-b border-[#D5E4FF] max-h-[35vh] overflow-y-auto">
+            <CountrySidebar
+              countries={countries}
+              selected={selectedCountryId}
+              setSelected={setSelectedCountryId}
+            />
+          </div>
+
+          <main className="flex-1 bg-[#F8FAFF] px-3 sm:px-5 lg:px-8 py-4 sm:py-5 lg:py-7 flex flex-col min-w-0 overflow-hidden">
+            <header className="flex flex-col sm:flex-row items-start justify-between gap-3 sm:gap-6 mb-4 sm:mb-6">
+              <div className="min-w-0">
+                <p className="text-[10px] sm:text-xs uppercase tracking-[0.25em] text-[#0F1A40]/55">
                   SEÇİLİ ÜLKE
                 </p>
-                <h1 className="mt-2 text-3xl font-semibold text-[#0F1A40]">
+                <h1 className="mt-1 sm:mt-2 text-xl sm:text-2xl lg:text-3xl font-semibold text-[#0F1A40] truncate">
                   {selectedCountryName}
                 </h1>
-                <p className="mt-1 text-sm text-[#0F1A40]/70 max-w-xl">
+                <p className="mt-1 text-xs sm:text-sm text-[#0F1A40]/70 max-w-xl hidden sm:block">
                   Bu panelde seçili ülkeye ait notlarınızı, tarih filtrelerini ve
                   eklediğiniz içerikleri görebilirsiniz.
                 </p>
@@ -422,37 +432,39 @@ const Dashboard: React.FC = () => {
                 onClick={() => setIsQuickModalOpen(true)}
                 disabled={!selectedCountryId}
                 className="
-                  mt-1 inline-flex items-center gap-2
-                  rounded-xl bg-[#3A6BBF] text-white text-sm font-medium
-                  px-4 py-2.5
+                  inline-flex items-center gap-1.5 sm:gap-2
+                  rounded-lg sm:rounded-xl bg-[#3A6BBF] text-white text-xs sm:text-sm font-medium
+                  px-3 sm:px-4 py-2 sm:py-2.5
                   shadow-[0_10px_24px_rgba(58,107,191,0.35)]
                   hover:brightness-110 transition
                   disabled:opacity-50 disabled:cursor-not-allowed
+                  shrink-0
                 "
               >
-                <span className="text-lg leading-none">＋</span>
-                Yeni Not Oluştur
+                <span className="text-base sm:text-lg leading-none">＋</span>
+                <span className="hidden xs:inline">Yeni Not Oluştur</span>
+                <span className="xs:hidden">Yeni Not</span>
               </button>
             </header>
 
             {/* Filters row */}
-            <section className="mb-4">
+            <section className="mb-3 sm:mb-4">
               <div
                 className="
-                  flex flex-wrap items-center gap-3
-                  rounded-xl bg-[#EEF4FF]
+                  flex flex-wrap items-center gap-2 sm:gap-3
+                  rounded-lg sm:rounded-xl bg-[#EEF4FF]
                   border border-[#D5E4FF]
-                  px-3 py-2
+                  px-2 sm:px-3 py-2
                 "
               >
                 <div className="flex items-center gap-2 shrink-0">
                   <span className="h-1.5 w-1.5 rounded-full bg-[#3A6BBF]" />
-                  <span className="text-[10px] font-semibold tracking-[0.16em] text-[#0F1A40]/70 uppercase">
+                  <span className="text-[9px] sm:text-[10px] font-semibold tracking-[0.16em] text-[#0F1A40]/70 uppercase">
                     Tarih
                   </span>
                 </div>
 
-                <div className="flex items-center gap-2 shrink-0">
+                <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
                   {[
                     { id: "all", label: "Tümü" },
                     { id: "today", label: "Bugün" },
@@ -516,16 +528,16 @@ const Dashboard: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="ml-auto shrink-0 w-48">
+                <div className="ml-auto shrink-0 w-32 sm:w-48">
                   <input
                     placeholder="Notlarda ara..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     className="
-                      w-full px-2.5 py-1
-                      rounded-xl bg-white
+                      w-full px-2 sm:px-2.5 py-1
+                      rounded-lg sm:rounded-xl bg-white
                       border border-[#D5E4FF]
-                      text-[11px] text-[#0F1A40]
+                      text-[10px] sm:text-[11px] text-[#0F1A40]
                       placeholder:text-[#0F1A40]/45
                       shadow-sm
                       focus:outline-none focus:ring-2 focus:ring-[#AFC6FF]
@@ -537,11 +549,10 @@ const Dashboard: React.FC = () => {
             </section>
 
             {/* Notes + Detail columns */}
-            <section className="flex-1 flex overflow-hidden">
+            <section className="flex-1 flex flex-col md:flex-row gap-3 overflow-hidden">
               {/* Notes list */}
               <div 
-                style={{ width: notesListWidth, minWidth: 280, maxWidth: 600 }} 
-                className="shrink-0 rounded-2xl border border-[#D5E4FF] bg-white px-5 py-4 h-full overflow-y-auto overflow-x-hidden relative"
+                className="md:shrink-0 rounded-xl sm:rounded-2xl border border-[#D5E4FF] bg-white px-3 sm:px-5 py-3 sm:py-4 h-[40%] md:h-full md:w-[280px] lg:w-[320px] xl:w-[380px] overflow-y-auto overflow-x-hidden relative"
               >
                 {filteredNotes.length === 0 ? (
                   <p className="text-sm text-[#0F1A40]/60">Henüz not bulunmuyor.</p>
@@ -569,38 +580,39 @@ const Dashboard: React.FC = () => {
 
               {/* Detail panel */}
               {isDetailVisible && selectedNote && (
-                <aside className="flex-1 min-w-0 rounded-2xl border border-[#D5E4FF] bg-white px-6 py-5 flex flex-col">
-                  <div className="mb-3 flex items-start justify-between gap-4">
-                    <div className="space-y-1">
-                      <p className="text-[11px] font-semibold tracking-[0.16em] text-[#0F1A40]/60 uppercase">
+                <aside className="flex-1 min-w-0 rounded-xl sm:rounded-2xl border border-[#D5E4FF] bg-white px-3 sm:px-6 py-3 sm:py-5 flex flex-col h-[60%] md:h-full">
+                  <div className="mb-2 sm:mb-3 flex items-start justify-between gap-2 sm:gap-4">
+                    <div className="space-y-1 min-w-0">
+                      <p className="text-[10px] sm:text-[11px] font-semibold tracking-[0.16em] text-[#0F1A40]/60 uppercase">
                         Not Detayı
                       </p>
-                      <h2 className="text-lg font-semibold text-[#0F1A40]">
+                      <h2 className="text-base sm:text-lg font-semibold text-[#0F1A40] truncate">
                         {selectedNote.title}
                       </h2>
 
                       <div className="flex flex-wrap items-center gap-2 mt-1">
-                        <span className="inline-flex items-center rounded-full bg-[#F2F6FF] border border-[#C8D8FF] px-3 py-1 text-[11px] text-[#0F1A40]">
+                        <span className="inline-flex items-center rounded-full bg-[#F2F6FF] border border-[#C8D8FF] px-2 sm:px-3 py-0.5 sm:py-1 text-[10px] sm:text-[11px] text-[#0F1A40]">
                           {selectedCountryName}
                         </span>
                       </div>
                     </div>
 
                     {/* icons on top, date under them */}
-                    <div className="flex flex-col items-end gap-2 shrink-0 min-w-[96px] pt-0.5">
-                      <div className="flex items-center gap-2">
+                    <div className="flex flex-col items-end gap-1.5 sm:gap-2 shrink-0 min-w-[80px] sm:min-w-[96px] pt-0.5">
+                      <div className="flex items-center gap-1.5 sm:gap-2">
                         <button
                           onClick={() => setIsDetailVisible(false)}
                           title="Paneli gizle"
                           className="
                             inline-flex items-center justify-center
-                            w-9 h-9 rounded-xl
+                            w-7 h-7 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl
                             bg-[#EEF4FF] text-[#0F1A40]
                             border border-[#D0DFFF]
                             hover:bg-white transition
                           "
                         >
-                          <X size={16} />
+                          <X size={14} className="sm:hidden" />
+                          <X size={16} className="hidden sm:block" />
                         </button>
 
                         <button
@@ -608,89 +620,92 @@ const Dashboard: React.FC = () => {
                           title="Tam ekranda aç"
                           className="
                             inline-flex items-center justify-center
-                            w-9 h-9 rounded-xl
+                            w-7 h-7 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl
                             bg-[#3A6BBF] text-white
                             shadow-[0_6px_16px_rgba(58,107,191,0.35)]
                             hover:brightness-110 transition
                           "
                         >
-                          <Maximize2 size={16} />
+                          <Maximize2 size={14} className="sm:hidden" />
+                          <Maximize2 size={16} className="hidden sm:block" />
                         </button>
                       </div>
 
-                      <span className="text-[11px] text-[#0F1A40]/60 whitespace-nowrap">
+                      <span className="text-[10px] sm:text-[11px] text-[#0F1A40]/60 whitespace-nowrap">
                         {selectedNote.date}
                       </span>
                     </div>
                   </div>
 
-                  <div className="mt-2 flex-1 rounded-2xl border border-[#E0E7FF] bg-[#F8FAFF] px-4 py-3 overflow-y-auto">
-                    <p className="text-sm leading-relaxed text-[#0F1A40]/80 whitespace-pre-line break-words">
+                  <div className="mt-1 sm:mt-2 flex-1 rounded-xl sm:rounded-2xl border border-[#E0E7FF] bg-[#F8FAFF] px-3 sm:px-4 py-2 sm:py-3 overflow-y-auto">
+                    <p className="text-xs sm:text-sm leading-relaxed text-[#0F1A40]/80 whitespace-pre-line break-words">
                       {selectedNote.content}
                     </p>
                   </div>
 
-                  <div className="mt-4 space-y-3">
+                  <div className="mt-3 sm:mt-4 space-y-2 sm:space-y-3">
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => setIsEditModalOpen(true)}
                         className="
-                          flex-1 inline-flex items-center justify-center gap-2
-                          px-4 py-2 rounded-xl
+                          flex-1 inline-flex items-center justify-center gap-1.5 sm:gap-2
+                          px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl
                           bg-[#EEF4FF] text-[#0F1A40]
                           border border-[#D0DFFF]
                           hover:bg-white transition
-                          text-sm font-medium
+                          text-xs sm:text-sm font-medium
                         "
                       >
-                        <Edit2 size={14} />
+                        <Edit2 size={12} className="sm:hidden" />
+                        <Edit2 size={14} className="hidden sm:block" />
                         Düzenle
                       </button>
                       <button
                         onClick={handleDeleteNote}
                         className="
-                          flex-1 inline-flex items-center justify-center gap-2
-                          px-4 py-2 rounded-xl
+                          flex-1 inline-flex items-center justify-center gap-1.5 sm:gap-2
+                          px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl
                           bg-red-50 text-red-600
                           border border-red-200
                           hover:bg-red-100 transition
-                          text-sm font-medium
+                          text-xs sm:text-sm font-medium
                         "
                       >
-                        <Trash2 size={14} />
+                        <Trash2 size={12} className="sm:hidden" />
+                        <Trash2 size={14} className="hidden sm:block" />
                         Sil
                       </button>
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-1.5 sm:space-y-2">
                       <div className="flex items-center justify-between">
-                        <p className="text-[11px] font-semibold tracking-[0.18em] text-[#0F1A40]/65 uppercase">
+                        <p className="text-[10px] sm:text-[11px] font-semibold tracking-[0.18em] text-[#0F1A40]/65 uppercase">
                           Linkler
                         </p>
                         <button
                           onClick={handleAddLink}
-                          className="text-xs text-[#3A6BBF] hover:underline"
+                          className="text-[10px] sm:text-xs text-[#3A6BBF] hover:underline"
                         >
                           + Link Ekle
                         </button>
                       </div>
 
                       {links.length === 0 ? (
-                        <p className="text-xs text-[#0F1A40]/50">
+                        <p className="text-[10px] sm:text-xs text-[#0F1A40]/50">
                           Henüz link eklenmemiş
                         </p>
                       ) : (
-                        <div className="space-y-2">
+                        <div className="space-y-1.5 sm:space-y-2">
                           {links.map((link) => (
                             <div
                               key={link.id}
-                              className="flex items-center gap-2 p-2 rounded-lg bg-[#F8FAFF] border border-[#E0E7FF] min-w-0"
+                              className="flex items-center gap-1.5 sm:gap-2 p-1.5 sm:p-2 rounded-lg bg-[#F8FAFF] border border-[#E0E7FF] min-w-0"
                             >
                               <a
                                 href={link.url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="flex-1 text-xs text-[#3A6BBF] hover:underline break-words min-w-0"
+                                className="flex-1 text-[10px] sm:text-xs text-[#3A6BBF] hover:underline break-words min-w-0"
                               >
                                 {link.title}
                               </a>
@@ -707,42 +722,43 @@ const Dashboard: React.FC = () => {
                       )}
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-1.5 sm:space-y-2">
                       <div className="flex items-center justify-between">
-                        <p className="text-[11px] font-semibold tracking-[0.18em] text-[#0F1A40]/65 uppercase">
+                        <p className="text-[10px] sm:text-[11px] font-semibold tracking-[0.18em] text-[#0F1A40]/65 uppercase">
                           Eklentiler
                         </p>
                         <button
                           onClick={handleAddAttachments}
-                          className="text-xs text-[#3A6BBF] hover:underline"
+                          className="text-[10px] sm:text-xs text-[#3A6BBF] hover:underline"
                         >
                           + Dosya Ekle
                         </button>
                       </div>
 
                       {attachments.length === 0 ? (
-                        <p className="text-xs text-[#0F1A40]/50">
+                        <p className="text-[10px] sm:text-xs text-[#0F1A40]/50">
                           Henüz eklenti bulunmuyor
                         </p>
                       ) : (
-                        <div className="grid grid-cols-3 gap-2">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 sm:gap-2">
                           {attachments.map((attachment) => {
                             const isPdf = attachment.mime_type === 'application/pdf';
                             return (
                               <div
                                 key={attachment.id}
-                                className="relative group rounded-lg border border-[#E0E7FF] bg-[#F8FAFF] p-2 hover:border-[#3A6BBF]/50 transition"
+                                className="relative group rounded-lg border border-[#E0E7FF] bg-[#F8FAFF] p-1.5 sm:p-2 hover:border-[#3A6BBF]/50 transition"
                               >
                                 {isPdf ? (
-                                  <div className="flex flex-col items-center justify-center h-24 bg-[#EEF4FF] rounded">
-                                    <FileText size={32} className="text-[#3A6BBF]" />
-                                    <p className="text-[10px] text-[#0F1A40]/60 mt-1 truncate w-full text-center px-1">
+                                  <div className="flex flex-col items-center justify-center h-16 sm:h-24 bg-[#EEF4FF] rounded">
+                                    <FileText size={24} className="sm:hidden text-[#3A6BBF]" />
+                                    <FileText size={32} className="hidden sm:block text-[#3A6BBF]" />
+                                    <p className="text-[8px] sm:text-[10px] text-[#0F1A40]/60 mt-1 truncate w-full text-center px-1">
                                       {attachment.original_name || attachment.filename}
                                     </p>
                                   </div>
                                 ) : (
-                                  <div className="h-24 bg-[#EEF4FF] rounded overflow-hidden flex items-center justify-center">
-                                    <p className="text-xs text-[#0F1A40]/60">
+                                  <div className="h-16 sm:h-24 bg-[#EEF4FF] rounded overflow-hidden flex items-center justify-center">
+                                    <p className="text-[10px] sm:text-xs text-[#0F1A40]/60">
                                       Görsel
                                     </p>
                                   </div>
