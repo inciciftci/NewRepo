@@ -553,9 +553,13 @@ const Dashboard: React.FC = () => {
 
             {/* Notes + Detail columns */}
             <section className="flex-1 flex flex-col md:flex-row gap-4 overflow-hidden">
-              {/* Notes list - Modern card style */}
+              {/* Notes list - Modern card style - expands when no note selected */}
               <div 
-                className="md:shrink-0 rounded-2xl border border-slate-200/60 bg-white/90 backdrop-blur-sm px-3 sm:px-4 py-3 sm:py-4 h-[40%] md:h-full md:w-[280px] lg:w-[320px] xl:w-[380px] overflow-y-auto overflow-x-hidden relative shadow-sm"
+                className={`rounded-2xl border border-slate-200/60 bg-white/90 backdrop-blur-sm px-3 sm:px-4 py-3 sm:py-4 overflow-y-auto overflow-x-hidden relative shadow-sm transition-all duration-300 ${
+                  isDetailVisible && selectedNote 
+                    ? "h-[40%] md:h-full md:shrink-0 md:w-[320px] lg:w-[380px] xl:w-[420px]" 
+                    : "h-full flex-1"
+                }`}
               >
                 {filteredNotes.length === 0 ? (
                   <div className="flex flex-col items-center justify-center h-32 text-center">
