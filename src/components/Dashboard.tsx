@@ -23,31 +23,32 @@ const NoteCard: React.FC<NoteCardProps> = ({ note, isActive, onClick }) => {
     <article
       onClick={onClick}
       className={[
-        "group rounded-2xl border px-5 py-4 mb-3 cursor-pointer transition mx-auto max-w-[720px] min-w-0",
+        "group rounded-2xl border px-4 sm:px-5 py-3 sm:py-4 mb-3 cursor-pointer mx-auto max-w-[720px] min-w-0",
+        "transition-all duration-200 ease-out",
         isActive
-          ? "border-[#C4D3FF] bg-white shadow-[0_10px_24px_rgba(15,26,64,0.10)]"
-          : "border-[#DFE6FF] bg-[#F9FBFF] hover:bg-white hover:border-[#C4D3FF] hover:shadow-[0_10px_24px_rgba(15,26,64,0.08)]",
+          ? "border-cyan-400/40 bg-white shadow-md ring-2 ring-cyan-400/20"
+          : "border-slate-200/60 bg-white/80 hover:bg-white hover:border-slate-300 hover:shadow-md hover:-translate-y-[1px]",
       ].join(" ")}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
-          <h2 className="text-sm font-semibold text-[#0F1A40] group-hover:text-[#20448A]">
+          <h2 className="text-sm font-semibold text-slate-900 group-hover:text-blue-600 transition-colors duration-200">
             {note.title}
           </h2>
-          <p className="mt-1 text-xs leading-relaxed text-[#0F1A40]/75 line-clamp-2 break-all overflow-hidden">
+          <p className="mt-1.5 text-xs leading-relaxed text-slate-600 line-clamp-2 break-all overflow-hidden">
             {preview}
           </p>
 
-          <div className="mt-2 flex flex-wrap gap-2">
-            <span className="inline-flex items-center rounded-full bg-[#F2F6FF] border border-[#C8D8FF] px-2.5 py-0.5 text-[11px] text-[#0F1A40]">
+          <div className="mt-2.5 flex flex-wrap gap-2">
+            <span className="inline-flex items-center rounded-full bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-200/50 px-2.5 py-0.5 text-[11px] font-medium text-blue-700">
               {note.country_id}
             </span>
           </div>
         </div>
 
         <div className="flex flex-col items-end gap-2 shrink-0">
-          <span className="text-[11px] text-[#0F1A40]/60">{note.date}</span>
-          <span className="inline-flex items-center rounded-full bg-[#EDF3FF] px-2 py-0.5 text-[11px] text-[#0F1A40]/75">
+          <span className="text-[11px] text-slate-500 font-medium">{note.date}</span>
+          <span className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-medium text-slate-600 group-hover:bg-blue-100 group-hover:text-blue-700 transition-colors duration-200">
             Detayları aç
           </span>
         </div>
@@ -388,9 +389,10 @@ const Dashboard: React.FC = () => {
 
   return (
     <>
-      {/* Background + centered app card */}
-      <div className="h-screen w-screen bg-[#F3F7FF] flex items-center justify-center p-2 sm:p-4 lg:p-8">
-        <div className="w-full h-full max-w-7xl max-h-[98vh] sm:max-h-[95vh] lg:max-h-[92vh] rounded-2xl sm:rounded-3xl bg-white border border-[#D5E4FF] shadow-[0_24px_70px_rgba(15,26,64,0.12)] flex flex-col lg:flex-row overflow-hidden">
+      {/* Background with gradient */}
+      <div className="h-screen w-screen bg-gradient-to-br from-slate-50 via-sky-50 to-indigo-100 flex items-center justify-center p-2 sm:p-4 lg:p-6">
+        {/* Main app container with glass effect */}
+        <div className="w-full h-full max-w-7xl max-h-[98vh] sm:max-h-[96vh] lg:max-h-[94vh] rounded-2xl sm:rounded-3xl bg-white/70 backdrop-blur-xl border border-white/40 shadow-[0_25px_80px_rgba(15,23,42,0.15)] flex flex-col lg:flex-row overflow-hidden">
           {/* Sidebar - hidden on mobile, shown on lg+ */}
           <div style={{ width: sidebarWidth, minWidth: 240, maxWidth: 500 }} className="hidden lg:block shrink-0 relative">
             <CountrySidebar
@@ -400,12 +402,12 @@ const Dashboard: React.FC = () => {
             />
             <div
               onMouseDown={handleMouseDown}
-              className="absolute top-0 right-0 w-[6px] h-full cursor-col-resize hover:bg-[#3A6BBF]/30 transition-colors select-none bg-transparent z-20 translate-x-1/2"
+              className="absolute top-0 right-0 w-[6px] h-full cursor-col-resize hover:bg-blue-500/30 transition-colors duration-200 select-none bg-transparent z-20 translate-x-1/2"
             />
           </div>
 
           {/* Mobile sidebar - shown only on mobile/tablet */}
-          <div className="lg:hidden shrink-0 border-b border-[#D5E4FF] max-h-[35vh] overflow-y-auto">
+          <div className="lg:hidden shrink-0 border-b border-slate-200/60 max-h-[35vh] overflow-y-auto bg-white/50 backdrop-blur-sm">
             <CountrySidebar
               countries={countries}
               selected={selectedCountryId}
@@ -413,16 +415,16 @@ const Dashboard: React.FC = () => {
             />
           </div>
 
-          <main className="flex-1 bg-[#F8FAFF] px-3 sm:px-5 lg:px-8 py-4 sm:py-5 lg:py-7 flex flex-col min-w-0 overflow-hidden">
+          <main className="flex-1 bg-gradient-to-br from-slate-50/80 to-blue-50/50 px-3 sm:px-5 lg:px-8 py-4 sm:py-5 lg:py-7 flex flex-col min-w-0 overflow-hidden">
             <header className="flex flex-col sm:flex-row items-start justify-between gap-3 sm:gap-6 mb-4 sm:mb-6">
               <div className="min-w-0">
-                <p className="text-[10px] sm:text-xs uppercase tracking-[0.25em] text-[#0F1A40]/55">
+                <p className="text-[10px] sm:text-xs uppercase tracking-[0.2em] text-slate-500 font-medium">
                   SEÇİLİ ÜLKE
                 </p>
-                <h1 className="mt-1 sm:mt-2 text-xl sm:text-2xl lg:text-3xl font-semibold text-[#0F1A40] truncate">
+                <h1 className="mt-1 sm:mt-2 text-xl sm:text-2xl lg:text-3xl font-bold text-slate-900 tracking-tight truncate">
                   {selectedCountryName}
                 </h1>
-                <p className="mt-1 text-xs sm:text-sm text-[#0F1A40]/70 max-w-xl hidden sm:block">
+                <p className="mt-1.5 text-xs sm:text-sm text-slate-600 max-w-xl hidden sm:block leading-relaxed">
                   Bu panelde seçili ülkeye ait notlarınızı, tarih filtrelerini ve
                   eklediğiniz içerikleri görebilirsiniz.
                 </p>
@@ -433,38 +435,44 @@ const Dashboard: React.FC = () => {
                 disabled={!selectedCountryId}
                 className="
                   inline-flex items-center gap-1.5 sm:gap-2
-                  rounded-lg sm:rounded-xl bg-[#3A6BBF] text-white text-xs sm:text-sm font-medium
-                  px-3 sm:px-4 py-2 sm:py-2.5
-                  shadow-[0_10px_24px_rgba(58,107,191,0.35)]
-                  hover:brightness-110 transition
-                  disabled:opacity-50 disabled:cursor-not-allowed
+                  rounded-xl sm:rounded-2xl 
+                  bg-gradient-to-r from-blue-600 to-cyan-500 
+                  text-white text-xs sm:text-sm font-semibold
+                  px-4 sm:px-5 py-2.5 sm:py-3
+                  shadow-[0_10px_30px_rgba(37,99,235,0.3)]
+                  hover:shadow-[0_14px_40px_rgba(6,182,212,0.35)]
+                  hover:scale-[1.02] active:scale-[0.98]
+                  transition-all duration-200 ease-out
+                  disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100
                   shrink-0
                 "
               >
-                <span className="text-base sm:text-lg leading-none">＋</span>
-                <span className="hidden xs:inline">Yeni Not Oluştur</span>
-                <span className="xs:hidden">Yeni Not</span>
+                <span className="text-base sm:text-lg leading-none">+</span>
+                <span className="hidden sm:inline">Yeni Not Oluştur</span>
+                <span className="sm:hidden">Yeni Not</span>
               </button>
             </header>
 
-            {/* Filters row */}
-            <section className="mb-3 sm:mb-4">
+            {/* Filters row - Glass morphism style */}
+            <section className="mb-4 sm:mb-5">
               <div
                 className="
-                  flex flex-wrap items-center gap-2 sm:gap-3
-                  rounded-lg sm:rounded-xl bg-[#EEF4FF]
-                  border border-[#D5E4FF]
-                  px-2 sm:px-3 py-2
+                  flex flex-wrap items-center gap-2 sm:gap-4
+                  rounded-2xl bg-white/60 backdrop-blur-md
+                  border border-white/40
+                  shadow-[0_4px_20px_rgba(15,23,42,0.06)]
+                  px-3 sm:px-4 py-2.5 sm:py-3
                 "
               >
                 <div className="flex items-center gap-2 shrink-0">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#3A6BBF]" />
-                  <span className="text-[9px] sm:text-[10px] font-semibold tracking-[0.16em] text-[#0F1A40]/70 uppercase">
+                  <span className="h-2 w-2 rounded-full bg-gradient-to-r from-blue-500 to-cyan-400" />
+                  <span className="text-[10px] sm:text-[11px] font-semibold tracking-[0.12em] text-slate-600 uppercase">
                     Tarih
                   </span>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                {/* Segmented control style filter buttons */}
+                <div className="inline-flex rounded-full bg-slate-900/5 p-1">
                   {[
                     { id: "all", label: "Tümü" },
                     { id: "today", label: "Bugün" },
@@ -480,68 +488,63 @@ const Dashboard: React.FC = () => {
                           setSpecificDate("");
                         }}
                         className={[
-                          "inline-flex items-center gap-1.5",
-                          "px-2.5 py-1 rounded-full text-[11px] font-medium border transition",
+                          "px-3 py-1.5 rounded-full text-[11px] sm:text-xs font-medium transition-all duration-200",
                           isActive
-                            ? "bg-white text-[#0F1A40] border-[#AFC6FF] shadow-[0_4px_14px_rgba(15,26,64,0.10)]"
-                            : "bg-[#DFE8FF] text-[#0F1A40]/75 border-transparent hover:bg-white/80 hover:border-[#C3D3FF]",
+                            ? "bg-white text-slate-900 shadow-sm"
+                            : "text-slate-600 hover:text-slate-900",
                         ].join(" ")}
                       >
-                        <span
-                          className={
-                            "h-1.5 w-1.5 rounded-full " +
-                            (isActive ? "bg-[#3A6BBF]" : "bg-[#B5C7F5]")
-                          }
-                        />
-                        <span>{f.label}</span>
+                        {f.label}
                       </button>
                     );
                   })}
+                </div>
                   
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    <span className="text-[10px] font-medium text-[#0F1A40]/60">veya</span>
-                    <input
-                      type="date"
-                      value={specificDate}
-                      onChange={(e) => {
-                        setSpecificDate(e.target.value);
-                        if (e.target.value) {
-                          setDateFilter("all");
-                        }
-                      }}
-                      className={[
-                        "w-32 px-2 py-1 rounded-full text-[11px] font-medium border transition",
-                        specificDate
-                          ? "bg-white text-[#0F1A40] border-[#AFC6FF] shadow-[0_4px_14px_rgba(15,26,64,0.10)]"
-                          : "bg-[#DFE8FF] text-[#0F1A40]/75 border-transparent hover:bg-white/80 hover:border-[#C3D3FF]",
-                      ].join(" ")}
-                    />
-                    {specificDate && (
-                      <button
-                        onClick={() => setSpecificDate("")}
-                        className="text-[11px] text-[#0F1A40]/60 hover:text-[#0F1A40] transition shrink-0"
-                        title="Tarih seçimini temizle"
-                      >
-                        ✕
-                      </button>
-                    )}
-                  </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <span className="text-[10px] font-medium text-slate-400">veya</span>
+                  <input
+                    type="date"
+                    value={specificDate}
+                    onChange={(e) => {
+                      setSpecificDate(e.target.value);
+                      if (e.target.value) {
+                        setDateFilter("all");
+                      }
+                    }}
+                    className={[
+                      "w-32 px-3 py-1.5 rounded-xl text-[11px] font-medium border transition-all duration-200",
+                      specificDate
+                        ? "bg-white text-slate-900 border-cyan-400/40 shadow-sm ring-2 ring-cyan-400/20"
+                        : "bg-white/80 text-slate-600 border-slate-200/60 hover:bg-white hover:border-slate-300",
+                    ].join(" ")}
+                  />
+                  {specificDate && (
+                    <button
+                      onClick={() => setSpecificDate("")}
+                      className="text-xs text-slate-400 hover:text-slate-600 transition-colors duration-200 shrink-0"
+                      title="Tarih seçimini temizle"
+                    >
+                      ✕
+                    </button>
+                  )}
                 </div>
 
-                <div className="ml-auto shrink-0 w-32 sm:w-48">
+                {/* Search input with icon style */}
+                <div className="ml-auto shrink-0 w-36 sm:w-52 relative">
                   <input
                     placeholder="Notlarda ara..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     className="
-                      w-full px-2 sm:px-2.5 py-1
-                      rounded-lg sm:rounded-xl bg-white
-                      border border-[#D5E4FF]
-                      text-[10px] sm:text-[11px] text-[#0F1A40]
-                      placeholder:text-[#0F1A40]/45
+                      w-full pl-3 pr-3 py-2
+                      rounded-xl bg-white/80
+                      border border-slate-200/60
+                      text-xs text-slate-900
+                      placeholder:text-slate-400
                       shadow-sm
-                      focus:outline-none focus:ring-2 focus:ring-[#AFC6FF]
-                      focus:border-[#AFC6FF]
+                      focus:outline-none focus:ring-2 focus:ring-cyan-400/40 focus:border-cyan-400/40
+                      focus:bg-white
+                      transition-all duration-200
                     "
                   />
                 </div>
@@ -549,13 +552,16 @@ const Dashboard: React.FC = () => {
             </section>
 
             {/* Notes + Detail columns */}
-            <section className="flex-1 flex flex-col md:flex-row gap-3 overflow-hidden">
-              {/* Notes list */}
+            <section className="flex-1 flex flex-col md:flex-row gap-4 overflow-hidden">
+              {/* Notes list - Modern card style */}
               <div 
-                className="md:shrink-0 rounded-xl sm:rounded-2xl border border-[#D5E4FF] bg-white px-3 sm:px-5 py-3 sm:py-4 h-[40%] md:h-full md:w-[280px] lg:w-[320px] xl:w-[380px] overflow-y-auto overflow-x-hidden relative"
+                className="md:shrink-0 rounded-2xl border border-slate-200/60 bg-white/90 backdrop-blur-sm px-3 sm:px-4 py-3 sm:py-4 h-[40%] md:h-full md:w-[280px] lg:w-[320px] xl:w-[380px] overflow-y-auto overflow-x-hidden relative shadow-sm"
               >
                 {filteredNotes.length === 0 ? (
-                  <p className="text-sm text-[#0F1A40]/60">Henüz not bulunmuyor.</p>
+                  <div className="flex flex-col items-center justify-center h-32 text-center">
+                    <p className="text-sm text-slate-500">Henüz not bulunmuyor.</p>
+                    <p className="text-xs text-slate-400 mt-1">Yeni bir not oluşturun</p>
+                  </div>
                 ) : (
                   filteredNotes.map((note) => (
                     <NoteCard
@@ -573,46 +579,46 @@ const Dashboard: React.FC = () => {
                 {isDetailVisible && selectedNote && (
                   <div
                     onMouseDown={handleMouseDownNotesList}
-                    className="absolute top-0 right-0 w-[6px] h-full cursor-col-resize hover:bg-[#3A6BBF]/30 transition-colors select-none bg-transparent z-20 translate-x-1/2"
+                    className="absolute top-0 right-0 w-[6px] h-full cursor-col-resize hover:bg-blue-500/30 transition-colors duration-200 select-none bg-transparent z-20 translate-x-1/2"
                   />
                 )}
               </div>
 
-              {/* Detail panel */}
+              {/* Detail panel - Modern glass style */}
               {isDetailVisible && selectedNote && (
-                <aside className="flex-1 min-w-0 rounded-xl sm:rounded-2xl border border-[#D5E4FF] bg-white px-3 sm:px-6 py-3 sm:py-5 flex flex-col h-[60%] md:h-full">
-                  <div className="mb-2 sm:mb-3 flex items-start justify-between gap-2 sm:gap-4">
-                    <div className="space-y-1 min-w-0">
-                      <p className="text-[10px] sm:text-[11px] font-semibold tracking-[0.16em] text-[#0F1A40]/60 uppercase">
+                <aside className="flex-1 min-w-0 rounded-2xl border border-slate-200/60 bg-white/95 backdrop-blur-sm px-4 sm:px-6 py-4 sm:py-5 flex flex-col h-[60%] md:h-full shadow-sm">
+                  <div className="mb-3 sm:mb-4 flex items-start justify-between gap-3 sm:gap-4">
+                    <div className="space-y-1.5 min-w-0">
+                      <p className="text-[10px] sm:text-[11px] font-semibold tracking-[0.12em] text-slate-500 uppercase">
                         Not Detayı
                       </p>
-                      <h2 className="text-base sm:text-lg font-semibold text-[#0F1A40] truncate">
+                      <h2 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight truncate">
                         {selectedNote.title}
                       </h2>
 
-                      <div className="flex flex-wrap items-center gap-2 mt-1">
-                        <span className="inline-flex items-center rounded-full bg-[#F2F6FF] border border-[#C8D8FF] px-2 sm:px-3 py-0.5 sm:py-1 text-[10px] sm:text-[11px] text-[#0F1A40]">
+                      <div className="flex flex-wrap items-center gap-2 mt-2">
+                        <span className="inline-flex items-center rounded-full bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-200/50 px-3 py-1 text-[11px] font-medium text-blue-700">
                           {selectedCountryName}
                         </span>
                       </div>
                     </div>
 
                     {/* icons on top, date under them */}
-                    <div className="flex flex-col items-end gap-1.5 sm:gap-2 shrink-0 min-w-[80px] sm:min-w-[96px] pt-0.5">
-                      <div className="flex items-center gap-1.5 sm:gap-2">
+                    <div className="flex flex-col items-end gap-2 shrink-0 min-w-[80px] sm:min-w-[96px] pt-0.5">
+                      <div className="flex items-center gap-2">
                         <button
                           onClick={() => setIsDetailVisible(false)}
                           title="Paneli gizle"
                           className="
                             inline-flex items-center justify-center
-                            w-7 h-7 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl
-                            bg-[#EEF4FF] text-[#0F1A40]
-                            border border-[#D0DFFF]
-                            hover:bg-white transition
+                            w-8 h-8 sm:w-9 sm:h-9 rounded-xl
+                            bg-slate-100 text-slate-600
+                            border border-slate-200/60
+                            hover:bg-white hover:shadow-sm hover:border-slate-300
+                            transition-all duration-200
                           "
                         >
-                          <X size={14} className="sm:hidden" />
-                          <X size={16} className="hidden sm:block" />
+                          <X size={16} />
                         </button>
 
                         <button
@@ -620,101 +626,102 @@ const Dashboard: React.FC = () => {
                           title="Tam ekranda aç"
                           className="
                             inline-flex items-center justify-center
-                            w-7 h-7 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl
-                            bg-[#3A6BBF] text-white
-                            shadow-[0_6px_16px_rgba(58,107,191,0.35)]
-                            hover:brightness-110 transition
+                            w-8 h-8 sm:w-9 sm:h-9 rounded-xl
+                            bg-gradient-to-r from-blue-600 to-cyan-500 text-white
+                            shadow-[0_6px_20px_rgba(37,99,235,0.3)]
+                            hover:shadow-[0_8px_25px_rgba(6,182,212,0.35)]
+                            hover:scale-105 active:scale-95
+                            transition-all duration-200
                           "
                         >
-                          <Maximize2 size={14} className="sm:hidden" />
-                          <Maximize2 size={16} className="hidden sm:block" />
+                          <Maximize2 size={16} />
                         </button>
                       </div>
 
-                      <span className="text-[10px] sm:text-[11px] text-[#0F1A40]/60 whitespace-nowrap">
+                      <span className="text-[11px] text-slate-500 font-medium whitespace-nowrap">
                         {selectedNote.date}
                       </span>
                     </div>
                   </div>
 
-                  <div className="mt-1 sm:mt-2 flex-1 rounded-xl sm:rounded-2xl border border-[#E0E7FF] bg-[#F8FAFF] px-3 sm:px-4 py-2 sm:py-3 overflow-y-auto">
-                    <p className="text-xs sm:text-sm leading-relaxed text-[#0F1A40]/80 whitespace-pre-line break-words">
+                  <div className="mt-2 flex-1 rounded-xl border border-slate-200/60 bg-gradient-to-br from-slate-50 to-blue-50/30 px-4 py-3 overflow-y-auto">
+                    <p className="text-sm leading-relaxed text-slate-700 whitespace-pre-line break-words">
                       {selectedNote.content}
                     </p>
                   </div>
 
-                  <div className="mt-3 sm:mt-4 space-y-2 sm:space-y-3">
+                  <div className="mt-4 space-y-3">
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => setIsEditModalOpen(true)}
                         className="
-                          flex-1 inline-flex items-center justify-center gap-1.5 sm:gap-2
-                          px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl
-                          bg-[#EEF4FF] text-[#0F1A40]
-                          border border-[#D0DFFF]
-                          hover:bg-white transition
-                          text-xs sm:text-sm font-medium
+                          flex-1 inline-flex items-center justify-center gap-2
+                          px-4 py-2.5 rounded-xl
+                          bg-slate-100 text-slate-700
+                          border border-slate-200/60
+                          hover:bg-white hover:shadow-sm hover:border-slate-300
+                          transition-all duration-200
+                          text-sm font-medium
                         "
                       >
-                        <Edit2 size={12} className="sm:hidden" />
-                        <Edit2 size={14} className="hidden sm:block" />
+                        <Edit2 size={14} />
                         Düzenle
                       </button>
                       <button
                         onClick={handleDeleteNote}
                         className="
-                          flex-1 inline-flex items-center justify-center gap-1.5 sm:gap-2
-                          px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl
+                          flex-1 inline-flex items-center justify-center gap-2
+                          px-4 py-2.5 rounded-xl
                           bg-red-50 text-red-600
-                          border border-red-200
-                          hover:bg-red-100 transition
-                          text-xs sm:text-sm font-medium
+                          border border-red-200/60
+                          hover:bg-red-100 hover:border-red-300
+                          transition-all duration-200
+                          text-sm font-medium
                         "
                       >
-                        <Trash2 size={12} className="sm:hidden" />
-                        <Trash2 size={14} className="hidden sm:block" />
+                        <Trash2 size={14} />
                         Sil
                       </button>
                     </div>
 
-                    <div className="space-y-1.5 sm:space-y-2">
+                    <div className="space-y-2">
                       <div className="flex items-center justify-between">
-                        <p className="text-[10px] sm:text-[11px] font-semibold tracking-[0.18em] text-[#0F1A40]/65 uppercase">
+                        <p className="text-[11px] font-semibold tracking-[0.12em] text-slate-500 uppercase">
                           Linkler
                         </p>
                         <button
                           onClick={handleAddLink}
-                          className="text-[10px] sm:text-xs text-[#3A6BBF] hover:underline"
+                          className="text-xs text-blue-600 hover:text-blue-700 font-medium transition-colors duration-200"
                         >
                           + Link Ekle
                         </button>
                       </div>
 
                       {links.length === 0 ? (
-                        <p className="text-[10px] sm:text-xs text-[#0F1A40]/50">
+                        <p className="text-xs text-slate-400">
                           Henüz link eklenmemiş
                         </p>
                       ) : (
-                        <div className="space-y-1.5 sm:space-y-2">
+                        <div className="space-y-2">
                           {links.map((link) => (
                             <div
                               key={link.id}
-                              className="flex items-center gap-1.5 sm:gap-2 p-1.5 sm:p-2 rounded-lg bg-[#F8FAFF] border border-[#E0E7FF] min-w-0"
+                              className="flex items-center gap-2 p-2.5 rounded-xl bg-slate-50 border border-slate-200/60 min-w-0 hover:bg-white hover:shadow-sm transition-all duration-200"
                             >
                               <a
                                 href={link.url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="flex-1 text-[10px] sm:text-xs text-[#3A6BBF] hover:underline break-words min-w-0"
+                                className="flex-1 text-xs text-blue-600 hover:text-blue-700 font-medium break-words min-w-0"
                               >
                                 {link.title}
                               </a>
                               <button
                                 onClick={() => handleDeleteLink(link.id)}
-                                className="text-red-500 hover:text-red-700 shrink-0"
+                                className="text-red-400 hover:text-red-600 shrink-0 transition-colors duration-200"
                                 title="Linki sil"
                               >
-                                <Trash2 size={12} />
+                                <Trash2 size={14} />
                               </button>
                             </div>
                           ))}
@@ -722,58 +729,57 @@ const Dashboard: React.FC = () => {
                       )}
                     </div>
 
-                    <div className="space-y-1.5 sm:space-y-2">
+                    <div className="space-y-2">
                       <div className="flex items-center justify-between">
-                        <p className="text-[10px] sm:text-[11px] font-semibold tracking-[0.18em] text-[#0F1A40]/65 uppercase">
+                        <p className="text-[11px] font-semibold tracking-[0.12em] text-slate-500 uppercase">
                           Eklentiler
                         </p>
                         <button
                           onClick={handleAddAttachments}
-                          className="text-[10px] sm:text-xs text-[#3A6BBF] hover:underline"
+                          className="text-xs text-blue-600 hover:text-blue-700 font-medium transition-colors duration-200"
                         >
                           + Dosya Ekle
                         </button>
                       </div>
 
                       {attachments.length === 0 ? (
-                        <p className="text-[10px] sm:text-xs text-[#0F1A40]/50">
+                        <p className="text-xs text-slate-400">
                           Henüz eklenti bulunmuyor
                         </p>
                       ) : (
-                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 sm:gap-2">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                           {attachments.map((attachment) => {
                             const isPdf = attachment.mime_type === 'application/pdf';
                             return (
                               <div
                                 key={attachment.id}
-                                className="relative group rounded-lg border border-[#E0E7FF] bg-[#F8FAFF] p-1.5 sm:p-2 hover:border-[#3A6BBF]/50 transition"
+                                className="relative group rounded-xl border border-slate-200/60 bg-slate-50 p-2 hover:bg-white hover:shadow-sm hover:border-slate-300 transition-all duration-200"
                               >
                                 {isPdf ? (
-                                  <div className="flex flex-col items-center justify-center h-16 sm:h-24 bg-[#EEF4FF] rounded">
-                                    <FileText size={24} className="sm:hidden text-[#3A6BBF]" />
-                                    <FileText size={32} className="hidden sm:block text-[#3A6BBF]" />
-                                    <p className="text-[8px] sm:text-[10px] text-[#0F1A40]/60 mt-1 truncate w-full text-center px-1">
+                                  <div className="flex flex-col items-center justify-center h-20 sm:h-24 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg">
+                                    <FileText size={28} className="text-blue-500" />
+                                    <p className="text-[9px] sm:text-[10px] text-slate-600 mt-1.5 truncate w-full text-center px-1 font-medium">
                                       {attachment.original_name || attachment.filename}
                                     </p>
                                   </div>
                                 ) : (
-                                  <div className="h-16 sm:h-24 bg-[#EEF4FF] rounded overflow-hidden flex items-center justify-center">
-                                    <p className="text-[10px] sm:text-xs text-[#0F1A40]/60">
+                                  <div className="h-20 sm:h-24 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg overflow-hidden flex items-center justify-center">
+                                    <p className="text-xs text-slate-500 font-medium">
                                       Görsel
                                     </p>
                                   </div>
                                 )}
-                                <div className="absolute top-1 right-1 flex gap-1 opacity-0 group-hover:opacity-100 transition">
+                                <div className="absolute top-1.5 right-1.5 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                                   <button
                                     onClick={() => handleOpenAttachment(attachment.filepath)}
-                                    className="p-1 rounded bg-[#3A6BBF] text-white hover:brightness-110 transition"
+                                    className="p-1.5 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition-colors duration-200 shadow-sm"
                                     title="Aç"
                                   >
                                     <ExternalLink size={12} />
                                   </button>
                                   <button
                                     onClick={() => handleDeleteAttachment(attachment.id)}
-                                    className="p-1 rounded bg-red-500 text-white hover:bg-red-600 transition"
+                                    className="p-1.5 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors duration-200 shadow-sm"
                                     title="Sil"
                                   >
                                     <Trash2 size={12} />

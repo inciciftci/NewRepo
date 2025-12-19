@@ -1,8 +1,43 @@
 @import "tailwindcss";
 
+/* Modern Design System - CSS Variables */
+:root {
+  /* Primary gradient colors */
+  --gradient-start: #f8fafc;
+  --gradient-mid: #e0f2fe;
+  --gradient-end: #e0e7ff;
+  
+  /* Accent colors */
+  --accent-primary: #3b82f6;
+  --accent-secondary: #06b6d4;
+  --accent-gradient-start: #2563eb;
+  --accent-gradient-end: #0891b2;
+  
+  /* Surface colors */
+  --surface-glass: rgba(255, 255, 255, 0.7);
+  --surface-card: rgba(255, 255, 255, 0.95);
+  --surface-hover: rgba(255, 255, 255, 1);
+  
+  /* Text colors */
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  
+  /* Border colors */
+  --border-light: rgba(148, 163, 184, 0.2);
+  --border-medium: rgba(148, 163, 184, 0.3);
+  --border-accent: rgba(59, 130, 246, 0.3);
+  
+  /* Shadow colors */
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
+  --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.08);
+  --shadow-lg: 0 12px 40px rgba(15, 23, 42, 0.12);
+  --shadow-glow: 0 8px 30px rgba(59, 130, 246, 0.25);
+}
+
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
