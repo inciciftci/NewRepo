@@ -3,7 +3,7 @@ import CountrySidebar from "./CountrySidebar";
 import NewNoteModal from "./NewNoteModal";
 import EditNoteModal from "./EditNoteModal";
 import FullNoteModal, { FullNote } from "./FullNoteModal";
-import { X, Maximize2, Edit2, Trash2, Paperclip, FileText, ExternalLink } from "lucide-react";
+import { X, Maximize2, Edit2, Trash2, Paperclip, FileText, ExternalLink, Menu, ChevronLeft, Globe, Search } from "lucide-react";
 import type { Country, Note, Link, Attachment } from "../types";
 import { displayCountryName } from "../utils/country-tr";
 
@@ -71,6 +71,11 @@ const Dashboard: React.FC = () => {
   const [isFullOpen, setIsFullOpen] = useState(false);
   const [links, setLinks] = useState<Link[]>([]);
   const [attachments, setAttachments] = useState<Attachment[]>([]);
+  
+  // Mobile/Tablet responsive states
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [isMobileDetailOpen, setIsMobileDetailOpen] = useState(false);
+  
   const [sidebarWidth, setSidebarWidth] = useState<number>(() => {
     const saved = localStorage.getItem('sidebarWidth');
     return saved ? Number(saved) : 320;
@@ -86,6 +91,25 @@ const Dashboard: React.FC = () => {
   const [isResizingNotesList, setIsResizingNotesList] = useState(false);
   const startXRefNotesList = useRef(0);
   const startWidthRefNotesList = useRef(0);
+  
+  // Handle note selection with mobile detail modal
+  const handleNoteSelect = (note: Note) => {
+    setSelectedNote(note);
+    setIsDetailVisible(true);
+    // On mobile, open the detail modal
+    if (window.innerWidth < 1024) {
+      setIsMobileDetailOpen(true);
+    }
+  };
+  
+  // Handle country selection with auto-close sidebar on mobile
+  const handleCountrySelect = (countryId: number) => {
+    setSelectedCountryId(countryId);
+    // Close mobile sidebar after selection
+    if (window.innerWidth < 1024) {
+      setIsMobileSidebarOpen(false);
+    }
+  };
 
   useEffect(() => {
     loadCountries();
@@ -389,11 +413,109 @@ const Dashboard: React.FC = () => {
 
   return (
     <>
+      {/* Mobile Sidebar Drawer Overlay */}
+      {isMobileSidebarOpen && (
+        <div 
+          className="lg:hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-40 transition-opacity duration-300"
+          onClick={() => setIsMobileSidebarOpen(false)}
+        />
+      )}
+      
+      {/* Mobile Sidebar Drawer */}
+      <div className={`
+        lg:hidden fixed top-0 left-0 h-full w-80 max-w-[85vw] z-50
+        bg-white/95 backdrop-blur-xl shadow-2xl
+        transform transition-transform duration-300 ease-out
+        ${isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+      `}>
+        <div className="flex items-center justify-between p-4 border-b border-slate-200/60">
+          <h2 className="text-lg font-bold text-slate-900">Ülke Listesi</h2>
+          <button
+            onClick={() => setIsMobileSidebarOpen(false)}
+            className="p-2 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors"
+          >
+            <X size={20} />
+          </button>
+        </div>
+        <div className="h-[calc(100%-64px)] overflow-y-auto">
+          <CountrySidebar
+            countries={countries}
+            selected={selectedCountryId}
+            setSelected={handleCountrySelect}
+          />
+        </div>
+      </div>
+      
+      {/* Mobile Detail Modal */}
+      {isMobileDetailOpen && selectedNote && (
+        <div className="lg:hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center">
+          <div 
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            onClick={() => setIsMobileDetailOpen(false)}
+          />
+          <div className="relative w-full sm:w-[90%] sm:max-w-lg max-h-[85vh] bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl overflow-hidden animate-slide-up">
+            {/* Mobile Detail Header */}
+            <div className="sticky top-0 bg-white/95 backdrop-blur-sm border-b border-slate-200/60 px-4 py-3 flex items-center justify-between">
+              <div className="min-w-0 flex-1">
+                <p className="text-[10px] font-semibold tracking-[0.12em] text-slate-500 uppercase">Not Detayı</p>
+                <h2 className="text-lg font-bold text-slate-900 truncate">{selectedNote.title}</h2>
+              </div>
+              <button
+                onClick={() => setIsMobileDetailOpen(false)}
+                className="p-2 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors shrink-0 ml-2"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            
+            {/* Mobile Detail Content */}
+            <div className="p-4 overflow-y-auto max-h-[calc(85vh-120px)]">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="inline-flex items-center rounded-full bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-200/50 px-3 py-1 text-[11px] font-medium text-blue-700">
+                  {selectedCountryName}
+                </span>
+                <span className="text-[11px] text-slate-500">{selectedNote.date}</span>
+              </div>
+              
+              <div className="rounded-xl border border-slate-200/60 bg-slate-50 p-4 mb-4">
+                <p className="text-sm leading-relaxed text-slate-700 whitespace-pre-line break-words">
+                  {selectedNote.content}
+                </p>
+              </div>
+              
+              {/* Action buttons */}
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    setIsMobileDetailOpen(false);
+                    setIsEditModalOpen(true);
+                  }}
+                  className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-slate-100 text-slate-700 border border-slate-200/60 hover:bg-white hover:shadow-sm transition-all text-sm font-medium"
+                >
+                  <Edit2 size={16} />
+                  Düzenle
+                </button>
+                <button
+                  onClick={() => {
+                    setIsMobileDetailOpen(false);
+                    handleDeleteNote();
+                  }}
+                  className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-red-50 text-red-600 border border-red-200/60 hover:bg-red-100 transition-all text-sm font-medium"
+                >
+                  <Trash2 size={16} />
+                  Sil
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Background with gradient */}
       <div className="h-screen w-screen bg-gradient-to-br from-slate-50 via-sky-50 to-indigo-100 flex items-center justify-center p-2 sm:p-4 lg:p-6">
         {/* Main app container with glass effect */}
         <div className="w-full h-full max-w-7xl max-h-[98vh] sm:max-h-[96vh] lg:max-h-[94vh] rounded-2xl sm:rounded-3xl bg-white/70 backdrop-blur-xl border border-white/40 shadow-[0_25px_80px_rgba(15,23,42,0.15)] flex flex-col lg:flex-row overflow-hidden">
-          {/* Sidebar - hidden on mobile, shown on lg+ */}
+          {/* Desktop Sidebar - hidden on mobile/tablet, shown on lg+ */}
           <div style={{ width: sidebarWidth, minWidth: 240, maxWidth: 500 }} className="hidden lg:block shrink-0 relative">
             <CountrySidebar
               countries={countries}
@@ -406,28 +528,30 @@ const Dashboard: React.FC = () => {
             />
           </div>
 
-          {/* Mobile sidebar - shown only on mobile/tablet */}
-          <div className="lg:hidden shrink-0 border-b border-slate-200/60 max-h-[35vh] overflow-y-auto bg-white/50 backdrop-blur-sm">
-            <CountrySidebar
-              countries={countries}
-              selected={selectedCountryId}
-              setSelected={setSelectedCountryId}
-            />
-          </div>
-
           <main className="flex-1 bg-gradient-to-br from-slate-50/80 to-blue-50/50 px-3 sm:px-5 lg:px-8 py-4 sm:py-5 lg:py-7 flex flex-col min-w-0 overflow-hidden">
             <header className="flex flex-col sm:flex-row items-start justify-between gap-3 sm:gap-6 mb-4 sm:mb-6">
-              <div className="min-w-0">
-                <p className="text-[10px] sm:text-xs uppercase tracking-[0.2em] text-slate-500 font-medium">
-                  SEÇİLİ ÜLKE
-                </p>
-                <h1 className="mt-1 sm:mt-2 text-xl sm:text-2xl lg:text-3xl font-bold text-slate-900 tracking-tight truncate">
-                  {selectedCountryName}
-                </h1>
-                <p className="mt-1.5 text-xs sm:text-sm text-slate-600 max-w-xl hidden sm:block leading-relaxed">
-                  Bu panelde seçili ülkeye ait notlarınızı, tarih filtrelerini ve
-                  eklediğiniz içerikleri görebilirsiniz.
-                </p>
+              <div className="flex items-start gap-3 min-w-0">
+                {/* Mobile hamburger menu button */}
+                <button
+                  onClick={() => setIsMobileSidebarOpen(true)}
+                  className="lg:hidden shrink-0 p-2.5 rounded-xl bg-white/80 border border-slate-200/60 text-slate-600 hover:bg-white hover:shadow-sm hover:text-slate-900 transition-all duration-200"
+                  title="Ülke listesini aç"
+                >
+                  <Menu size={20} />
+                </button>
+                
+                <div className="min-w-0">
+                  <p className="text-[10px] sm:text-xs uppercase tracking-[0.2em] text-slate-500 font-medium">
+                    SEÇİLİ ÜLKE
+                  </p>
+                  <h1 className="mt-1 sm:mt-2 text-xl sm:text-2xl lg:text-3xl font-bold text-slate-900 tracking-tight truncate">
+                    {selectedCountryName}
+                  </h1>
+                  <p className="mt-1.5 text-xs sm:text-sm text-slate-600 max-w-xl hidden sm:block leading-relaxed">
+                    Bu panelde seçili ülkeye ait notlarınızı, tarih filtrelerini ve
+                    eklediğiniz içerikleri görebilirsiniz.
+                  </p>
+                </div>
               </div>
 
               <button
@@ -552,13 +676,13 @@ const Dashboard: React.FC = () => {
             </section>
 
             {/* Notes + Detail columns */}
-            <section className="flex-1 flex flex-col md:flex-row gap-4 overflow-hidden">
-              {/* Notes list - Modern card style - expands when no note selected */}
+            <section className="flex-1 flex flex-col lg:flex-row gap-4 overflow-hidden">
+              {/* Notes list - Modern card style - full width on mobile/tablet, shrinks on desktop when detail visible */}
               <div 
                 className={`rounded-2xl border border-slate-200/60 bg-white/90 backdrop-blur-sm px-3 sm:px-4 py-3 sm:py-4 overflow-y-auto overflow-x-hidden relative shadow-sm transition-all duration-300 ${
                   isDetailVisible && selectedNote 
-                    ? "h-[40%] md:h-full md:shrink-0 md:w-[320px] lg:w-[380px] xl:w-[420px]" 
-                    : "h-full flex-1"
+                    ? "flex-1 lg:flex-none lg:shrink-0 lg:w-[380px] xl:w-[420px]" 
+                    : "flex-1"
                 }`}
               >
                 {filteredNotes.length === 0 ? (
@@ -572,10 +696,7 @@ const Dashboard: React.FC = () => {
                       key={note.id}
                       note={note}
                       isActive={selectedNote?.id === note.id}
-                      onClick={() => {
-                        setSelectedNote(note);
-                        setIsDetailVisible(true);
-                      }}
+                      onClick={() => handleNoteSelect(note)}
                     />
                   ))
                 )}
@@ -588,9 +709,9 @@ const Dashboard: React.FC = () => {
                 )}
               </div>
 
-              {/* Detail panel - Modern glass style */}
+              {/* Detail panel - Modern glass style - hidden on mobile/tablet, shown on desktop */}
               {isDetailVisible && selectedNote && (
-                <aside className="flex-1 min-w-0 rounded-2xl border border-slate-200/60 bg-white/95 backdrop-blur-sm px-4 sm:px-6 py-4 sm:py-5 flex flex-col h-[60%] md:h-full shadow-sm">
+                <aside className="hidden lg:flex flex-1 min-w-0 rounded-2xl border border-slate-200/60 bg-white/95 backdrop-blur-sm px-4 sm:px-6 py-4 sm:py-5 flex-col shadow-sm">
                   <div className="mb-3 sm:mb-4 flex items-start justify-between gap-3 sm:gap-4">
                     <div className="space-y-1.5 min-w-0">
                       <p className="text-[10px] sm:text-[11px] font-semibold tracking-[0.12em] text-slate-500 uppercase">
